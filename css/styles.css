@@ -1058,6 +1058,16 @@ body {
         padding: 0 !important;
     }
 
+/* Final safety rules: ensure the scaled game container never exceeds the viewport
+   and stays centered. Applied last so it overrides previous media rules. */
+#gamePage .game-container {
+    transform: scale(1.20) !important;
+    transform-origin: top center !important;
+    width: calc(100% / 1.20) !important;
+    max-width: calc(100% / 1.20) !important;
+    margin: 0 auto !important;
+}
+
     /* Panel gauche: Score, XP, Pause, Quitter - ULTRA COMPACT */
     .game-mobile-sidebar {
         width: 60px !important;
