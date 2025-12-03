@@ -1,16 +1,20 @@
-v0.02 - Système de versioning et changelog
+﻿v.01 - 2025-12-03 19:16
+- Mobile compatibility + Auto-release system
+
+
+v0.02 - SystÃ¨me de versioning et changelog
 - Version display dans le lobby (clickable)
 - Changelog disponible au click
 - Script automatique de bump version (bump-version.ps1)
 - Force update de tous les anciens comptes
-- Migration robuste avec logs détaillés
+- Migration robuste avec logs dÃ©taillÃ©s
 
 v0.01 - Version initiale
-- Système de comptes avec sauvegarde multiple
-- Progression 13 niveaux (0 → 75000 XP)
-- 13 skins débloquables
-- 13 musiques débloquables
-- Ligne complète +10 XP bonus
+- SystÃ¨me de comptes avec sauvegarde multiple
+- Progression 13 niveaux (0 â†’ 75000 XP)
+- 13 skins dÃ©bloquables
+- 13 musiques dÃ©bloquables
+- Ligne complÃ¨te +10 XP bonus
 - Affichage XP exact requis par niveau
-- Système de migration pour anciens comptes
+- SystÃ¨me de migration pour anciens comptes
 - Version display dans le lobby

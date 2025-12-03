@@ -1206,6 +1206,25 @@ body {
     .game-buttons {
         display: none !important;
     }
+
+    /* Version display en mobile */
+    .settings-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .version-info {
+        padding: 4px 8px !important;
+        font-size: 10px !important;
+        white-space: nowrap;
+    }
+
+    .btn-small {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+    }
 }
 
 /* ============ SCROLLBAR PERSONNALISÉE ============ */

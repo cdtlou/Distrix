@@ -1,6 +1,7 @@
 // ============ SYSTÈME XP ET NIVEAUX ============
 const XpSystem = {
-    // Paliers XP totaux - Niveaux 1 à 13 avec progression exacte
+    // Paliers XP pour passer au prochain niveau (même structure que la boutique)
+    // Niveau 1 (0 XP) → Niveau 2 (150 XP) → Niveau 3 (500 XP) etc.
     levelThresholds: {
         1: 0,
         2: 150,
@@ -18,6 +19,7 @@ const XpSystem = {
     },
 
     // Obtenir le niveau réel basé sur l'XP total (max niveau 13)
+    // Retourne un nombre simple: 1, 2, 3, 4... 13
     getLevelFromXP: function(totalXp) {
         const thresholds = Object.keys(this.levelThresholds)
             .map(Number)
