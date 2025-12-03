@@ -46,39 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Afficher les contrôles mobiles si petit écran au démarrage
     if (window.innerWidth < 768) {
-        const mcInit = document.querySelector('.mobile-controls');
-        if (mcInit) mcInit.classList.add('active');
+        document.querySelector('.mobile-controls').classList.remove('active');
     }
 
     console.log('🎮 District - Tetris Game initialized');
     console.log(`📊 Comptes en mémoire: ${Object.keys(accountSystem.accounts).length}`);
 
-    // Mobile visual override: inject CSS at runtime to force larger UI on small screens
-    if (window.innerWidth < 768) {
-        try {
-            if (!document.getElementById('mobile-ui-override')) {
-                const style = document.createElement('style');
-                style.id = 'mobile-ui-override';
-                style.textContent = `
-                    /* force larger UI on mobile */
-                    #gamePage .info-box { padding: 35px !important; }
-                    #gamePage .info-box h3 { font-size: 20px !important; }
-                    #gamePage .info-box p { font-size: 56px !important; }
-                    #gamePage .control-btn { font-size: 32px !important; padding: 28px !important; min-width: 80px !important; min-height: 80px !important; }
-                    #gamePage .mobile-controls { gap: 15px !important; }
-                    #gamePage .mobile-controls.active { max-width: 280px !important; }
-                    #gamePage #nextPieceCanvas { width: 160px !important; height: 160px !important; max-width: 160px !important; }
-                    #gamePage #gameCanvas { max-width: 280px !important; }
-                `;
-                document.head.appendChild(style);
-            }
-
-            const mc = document.querySelector('.mobile-controls');
-            if (mc) mc.classList.add('active');
-        } catch (err) {
-            console.error('Erreur injection mobile override:', err);
-        }
-    }
+    // Mobile visual override removed — use CSS media queries for mobile sizing
 
     // ============ DÉSACTIVER LE DÉFILEMENT SUR LA PAGE JEU ============
     const gamePage = document.getElementById('gamePage');
