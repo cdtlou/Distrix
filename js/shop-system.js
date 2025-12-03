@@ -2,11 +2,19 @@
 const ShopSystem = {
     // Définition des skins
     skins: [
-        { id: 0, name: 'Classic', level: 1, color: '#888888' }, // Gris par défaut
-        { id: 1, name: 'Red Bull', level: 2, color: '#001E50', backgroundColor: '#C0B0A0' },    // Bleu foncé Red Bull + argent
-        { id: 2, name: 'Bleu', level: 5, color: '#0099FF' },   // Bleu
-        { id: 3, name: 'Rouge', level: 8, color: '#FF3333' },  // Rouge
-        { id: 4, name: 'Violet', level: 13, color: '#DD00FF' }  // Violet
+        { id: 0, name: 'Classic', level: 1, color: '#888888' },
+        { id: 1, name: 'Red Bull', level: 2, color: '#001E50', backgroundColor: '#C0B0A0' },
+        { id: 2, name: 'Vert', level: 3, color: '#00FF00' },
+        { id: 3, name: 'Bleu', level: 4, color: '#0099FF' },
+        { id: 4, name: 'Rouge', level: 5, color: '#FF3333' },
+        { id: 5, name: 'Violet', level: 6, color: '#DD00FF' },
+        { id: 6, name: 'Rose', level: 7, color: '#FF1493' },
+        { id: 7, name: 'Orange', level: 8, color: '#FF8C00' },
+        { id: 8, name: 'Cyan', level: 9, color: '#00FFFF' },
+        { id: 9, name: 'Lime', level: 10, color: '#32CD32' },
+        { id: 10, name: 'Or', level: 11, color: '#FFD700' },
+        { id: 11, name: 'Argent', level: 12, color: '#C0C0C0' },
+        { id: 12, name: 'Arc-en-ciel', level: 13, color: '#FF6B9D' }
     ],
 
     // Définition des musiques
