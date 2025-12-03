@@ -386,9 +386,9 @@ class AccountSystem {
             }
         }
 
-        // Sauvegarder sur GitHub automatiquement si le token est configuré
-        if (window.githubBackup && window.githubBackup.isConfigured()) {
-            window.githubBackup.backupAccountsToGitHub(this.accounts)
+        // Sauvegarder sur GitHub automatiquement si l'user est connecté (INVISIBLE)
+        if (window.githubAuth && window.githubAuth.isAuthenticated) {
+            window.githubAuth.saveAccountsToGitHub(this.accounts)
                 .catch(error => console.error('❌ Erreur backup GitHub:', error));
         }
         

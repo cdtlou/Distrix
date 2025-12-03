@@ -22,6 +22,10 @@
                     <button id="createBtn" class="btn btn-primary">Créer un compte</button>
                     <button id="loginBtn" class="btn btn-primary">Se connecter</button>
                 </div>
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid rgba(102, 126, 234, 0.3);">
+                    <p style="font-size: 12px; color: #909090; margin-bottom: 10px; text-align: center;">ou</p>
+                    <button id="githubLoginBtn" class="btn btn-secondary" style="width: 100%;">🔐 Connexion GitHub</button>
+                </div>
             </div>
             <div id="loginError" class="error-message"></div>
         </div>
@@ -91,11 +95,6 @@
                     <span id="effectsVolumeValue">70%</span>
                 </div>
                 <!-- PC key display removed per user preference -->
-            </div>
-            
-            <!-- GitHub Backup Button -->
-            <div class="settings-buttons" style="margin-top: 20px; border-top: 2px solid rgba(102, 126, 234, 0.3); padding-top: 20px;">
-                <button id="githubBackupBtn" class="btn btn-secondary" style="width: 100%; margin-bottom: 10px;">🔐 Sauvegarde GitHub</button>
             </div>
             
             <div class="settings-buttons">
@@ -224,9 +223,8 @@
     <script src="js/tetris-game.js"></script>
     <script src="js/ui-manager.js"></script>
     
-    <!-- GitHub Backup System -->
-    <script src="js/github-backup.js"></script>
-    <script src="js/github-ui.js"></script>
+    <!-- GitHub Authentication & Invisible Backup -->
+    <script src="js/github-auth.js"></script>
     
     <!-- Firebase Cloud Sync (optionnel pour cloud backup) -->
     <script src="js/firebase-config.js"></script>
