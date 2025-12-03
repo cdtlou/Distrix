@@ -374,6 +374,17 @@ class AccountSystem {
         } catch (error) {
             console.error('❌ Erreur lors de la vérification:', error);
         }
+
+        // Sauvegarder aussi dans le cloud (Firebase) si disponible
+        if (window.cloudSync && window.cloudSync.isUserLoggedIn()) {
+            // Sauvegarder le compte actuel dans le cloud
+            if (this.currentUser && this.accounts[this.currentUser]) {
+                window.cloudSync.saveAccountToCloud(
+                    this.currentUser,
+                    this.accounts[this.currentUser]
+                );
+            }
+        }
         
         // Synchroniser avec le serveur en arrière-plan
         if (this.serverUrl) {
