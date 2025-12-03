@@ -226,6 +226,7 @@ class UIManager {
             
             const isUnlocked = ShopSystem.isItemUnlocked('skins', skin.id, user.level);
             const isOwned = accountSystem.isItemOwned('skins', skin.id);
+            const xpRequired = ShopSystem.getXpRequiredForItem('skins', skin.id);
             
             if (!isUnlocked) {
                 div.classList.add('locked');
@@ -238,6 +239,7 @@ class UIManager {
                 ${colorSquare}
                 <div class="shop-item-name">${skin.name}</div>
                 <div class="shop-item-level">Niveau ${skin.level}</div>
+                <div class="shop-item-xp" style="font-size: 12px; color: #ffd700; margin-bottom: 8px;">XP: ${xpRequired.toLocaleString()}</div>
                 <button class="shop-item-button" ${!isUnlocked ? 'disabled' : ''}
                         onclick="uiManager.buySkin(${skin.id})">
                     ${isOwned ? '✓ Possédé' : 'Débloquer'}
@@ -257,6 +259,7 @@ class UIManager {
             
             const isUnlocked = ShopSystem.isItemUnlocked('musics', music.id, user.level);
             const isOwned = accountSystem.isItemOwned('musics', music.id);
+            const xpRequired = ShopSystem.getXpRequiredForItem('musics', music.id);
             
             if (!isUnlocked) {
                 div.classList.add('locked');
@@ -265,6 +268,7 @@ class UIManager {
             div.innerHTML = `
                 <div class="shop-item-name">${music.emoji} ${music.name}</div>
                 <div class="shop-item-level">Niveau ${music.level}</div>
+                <div class="shop-item-xp" style="font-size: 12px; color: #ffd700; margin-bottom: 8px;">XP: ${xpRequired.toLocaleString()}</div>
                 <button class="shop-item-button" ${!isUnlocked ? 'disabled' : ''}
                         onclick="uiManager.buyMusic(${music.id})">
                     ${isOwned ? '✓ Possédé' : 'Débloquer'}
