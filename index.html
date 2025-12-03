@@ -7,6 +7,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>District - Tetris Game</title>
     <link rel="stylesheet" href="css/styles.css">
+    <!-- Google Sign-In -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <!-- Sync indicator removed per user preference (visual) -->
@@ -22,9 +24,13 @@
                     <button id="createBtn" class="btn btn-primary">Créer un compte</button>
                     <button id="loginBtn" class="btn btn-primary">Se connecter</button>
                 </div>
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid rgba(102, 126, 234, 0.3);">
-                    <p style="font-size: 12px; color: #909090; margin-bottom: 10px; text-align: center;">ou</p>
-                    <button id="githubLoginBtn" class="btn btn-secondary" style="width: 100%;">🔐 Connexion GitHub</button>
+                <div style="margin-top: 20px; text-align: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
+                    <p style="font-size: 12px; color: #999; margin-bottom: 10px;">OU AVEC GOOGLE</p>
+                    <div id="g_id_onload"
+                         data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                         data-callback="handleGoogleSignIn">
+                    </div>
+                    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="dark" data-text="signup_with"></div>
                 </div>
             </div>
             <div id="loginError" class="error-message"></div>
@@ -96,6 +102,8 @@
                 </div>
                 <!-- PC key display removed per user preference -->
             </div>
+            
+            <!-- Backup UI removed per user request -->
             
             <div class="settings-buttons">
                 <button id="closeSettingsBtn" class="btn btn-primary">Fermer</button>
@@ -216,23 +224,13 @@
 
     <!-- Scripts -->
     <script src="js/dev-reload.js"></script>
+    <script src="js/google-signin.js"></script>
     <script src="js/audio-system.js"></script>
     <script src="js/account-system.js"></script>
     <script src="js/xp-system.js"></script>
     <script src="js/shop-system.js"></script>
     <script src="js/tetris-game.js"></script>
     <script src="js/ui-manager.js"></script>
-    
-    <!-- GitHub Authentication & Invisible Backup -->
-    <script src="js/github-auth.js"></script>
-    
-    <!-- Firebase Cloud Sync (optionnel pour cloud backup) -->
-    <script src="js/firebase-config.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
-    <script src="js/cloud-sync.js"></script>
-    
     <script src="js/main.js"></script>
 </body>
 </html>
