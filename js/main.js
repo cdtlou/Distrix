@@ -4,6 +4,14 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Démarrage - Vérification du stockage...');
     accountSystem.debugVerifyStorage();
     
+    // TEST XP SYSTEM (pour vérifier que les affichages sont corrects)
+    console.log('🔍 Vérification du système XP:');
+    console.log('   Niveau 1:', window.XpSystem.getXpRequiredForLevel(1), 'XP (doit être 0)');
+    console.log('   Niveau 2:', window.XpSystem.getXpRequiredForLevel(2), 'XP (doit être 150)');
+    console.log('   Niveau 3:', window.XpSystem.getXpRequiredForLevel(3), 'XP (doit être 500)');
+    console.log('   Niveau 4:', window.XpSystem.getXpRequiredForLevel(4), 'XP (doit être 1200)');
+    console.log('   Niveau 5:', window.XpSystem.getXpRequiredForLevel(5), 'XP (doit être 2000)');
+    
     // VÉRIFICATION DE SAUVEGARDES
     // Si les comptes principaux sont vides, essayer de récupérer depuis le backup
     if (Object.keys(accountSystem.accounts).length === 0) {
