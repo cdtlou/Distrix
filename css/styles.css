@@ -831,22 +831,25 @@ body {
     /* Agrandir les contrôles tactiles pour les doigts */
     .mobile-controls {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 12px;
-        margin-top: 12px;
+        /* Layout: 3 columns on top row, allow wrapping for the second row */
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 16px;
+        justify-items: center;
     }
 
     .control-btn {
-        padding: 20px;
-        font-size: 22px;
-        border-radius: 12px;
-        min-width: 56px;
-        min-height: 56px;
-        box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+        padding: 22px 18px;
+        font-size: 26px;
+        border-radius: 14px;
+        min-width: 72px;
+        min-height: 72px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.28);
+        touch-action: manipulation;
     }
 
     .control-btn:active {
-        transform: scale(0.97);
+        transform: scale(0.98);
     }
 
     /* Agrandir le canvas de jeu sur mobile pour que les blocs soient plus gros */
