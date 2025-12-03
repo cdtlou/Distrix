@@ -51,6 +51,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log('🎮 District - Tetris Game initialized');
     console.log(`📊 Comptes en mémoire: ${Object.keys(accountSystem.accounts).length}`);
+
+    // ============ DÉSACTIVER LE DÉFILEMENT SUR LA PAGE JEU ============
+    const gamePage = document.getElementById('gamePage');
+    
+    // Bloquer la molette de la souris
+    gamePage.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    }, { passive: false });
+    
+    // Bloquer les touches de clavier qui causent le défilement
+    gamePage.addEventListener('keydown', (e) => {
+        const scrollKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'PageUp', 'PageDown', 'Home', 'End'];
+        if (scrollKeys.includes(e.key)) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }, { passive: false });
+    
+    // Bloquer le défilement tactile
+    gamePage.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    }, { passive: false });
 });
 
 // Sauvegarder les données avant de quitter

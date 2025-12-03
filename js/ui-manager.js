@@ -487,47 +487,11 @@ class UIManager {
         promptKey();
     }
 
-    // ================= Scroll control during gameplay =================
-    _disablePageScrolling() {
-        if (!this._touchMoveHandler) {
-            this._touchMoveHandler = function (e) { e.preventDefault(); };
-            window.addEventListener('touchmove', this._touchMoveHandler, { passive: false });
-        }
-
-        if (!this._keyDownHandler) {
-            this._keyDownHandler = (e) => {
-                const blockedKeys = ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','Spacebar'];
-                if (blockedKeys.includes(e.code) || blockedKeys.includes(e.key)) {
-                    e.preventDefault();
-                }
-            };
-            window.addEventListener('keydown', this._keyDownHandler, { capture: true });
-        }
-
-        document.documentElement.style.overflow = 'hidden';
-        document.body.style.overflow = 'hidden';
-    }
-
-    _enablePageScrolling() {
-        if (this._touchMoveHandler) {
-            window.removeEventListener('touchmove', this._touchMoveHandler, { passive: false });
-            this._touchMoveHandler = null;
-        }
-        if (this._keyDownHandler) {
-            window.removeEventListener('keydown', this._keyDownHandler, { capture: true });
-            this._keyDownHandler = null;
-        }
-        document.documentElement.style.overflow = '';
-        document.body.style.overflow = '';
-    }
-
     startGame() {
         this.showPage('gamePage');
         if (window.tetrisGame) {
             window.tetrisGame.start();
             this.updateGameDisplay(0, 0);
-            // disable scrolling while game is active
-            this._disablePageScrolling();
         }
     }
 
@@ -541,8 +505,6 @@ class UIManager {
         if (window.tetrisGame) {
             window.tetrisGame.stop();
         }
-        // restore scrolling when leaving the game
-        this._enablePageScrolling();
         this.showPage('lobbyPage');
     }
 
