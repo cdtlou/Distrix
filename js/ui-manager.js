@@ -604,8 +604,23 @@ class UIManager {
                         const x = offsetX + col;
                         const y = offsetY + row;
 
-                        ctx.fillStyle = piece.color || '#888888';
+                        // Support pour Red Bull (objet avec color et backgroundColor)
+                        let blockColor = piece.color || '#888888';
+                        if (typeof blockColor === 'object' && blockColor.color) {
+                            blockColor = blockColor.color;
+                        }
+
+                        ctx.fillStyle = blockColor;
                         ctx.fillRect(x * blockSize + 1, y * blockSize + 1, blockSize - 2, blockSize - 2);
+
+                        // Si c'est Red Bull, ajouter du texte "RB"
+                        if (blockColor === '#001E50' && blockSize > 15) {
+                            ctx.fillStyle = '#C0B0A0';
+                            ctx.font = `bold ${Math.floor(blockSize * 0.5)}px Arial`;
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText('RB', x * blockSize + blockSize / 2, y * blockSize + blockSize / 2);
+                        }
 
                         ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
                         ctx.lineWidth = 1;

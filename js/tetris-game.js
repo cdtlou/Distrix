@@ -223,9 +223,10 @@ class TetrisGame {
             const isOwned = accountSystem.isItemOwned('skins', equippedSkinId);
             
             if (isOwned && equippedSkinId !== 0) {
-                // Utiliser la couleur custom du skin
-                piece.color = ShopSystem.getSkinColor(equippedSkinId);
-                piece.originalColor = ShopSystem.getSkinColor(equippedSkinId);
+                // Utiliser la couleur custom du skin (ou objet complet pour Red Bull)
+                const skinObject = ShopSystem.getSkinObject(equippedSkinId);
+                piece.color = skinObject;
+                piece.originalColor = skinObject;
             }
         }
         
@@ -552,8 +553,35 @@ class TetrisGame {
     drawBlock(x, y, color) {
         const size = this.BLOCK_SIZE;
         
-        this.ctx.fillStyle = color;
+        // Support pour Red Bull: si color contient un objet avec backgroundColor
+        let blockColor = color;
+        let bgColor = null;
+        
+        if (typeof color === 'object' && color.color) {
+            blockColor = color.color;
+            bgColor = color.backgroundColor || null;
+        } else if (typeof color === 'string' && color.startsWith('{')) {
+            try {
+                const obj = JSON.parse(color);
+                blockColor = obj.color;
+                bgColor = obj.backgroundColor || null;
+            } catch (e) {
+                blockColor = color;
+            }
+        }
+        
+        // Dessiner le bloc principal
+        this.ctx.fillStyle = blockColor;
         this.ctx.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
+        
+        // Si c'est Red Bull (bleu foncé #001E50), ajouter du texte "RB"
+        if (blockColor === '#001E50' && size > 20) {
+            this.ctx.fillStyle = '#C0B0A0';
+            this.ctx.font = `bold ${Math.floor(size * 0.5)}px Arial`;
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText('RB', x * size + size / 2, y * size + size / 2);
+        }
         
         // Bordure
         this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';

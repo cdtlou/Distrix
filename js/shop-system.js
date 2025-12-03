@@ -3,7 +3,7 @@ const ShopSystem = {
     // Définition des skins
     skins: [
         { id: 0, name: 'Classic', level: 1, color: '#888888' }, // Gris par défaut
-        { id: 1, name: 'Vert', level: 5, color: '#00FF00' },    // Vert
+        { id: 1, name: 'Red Bull', level: 5, color: '#001E50', backgroundColor: '#C0B0A0' },    // Bleu foncé Red Bull + argent
         { id: 2, name: 'Bleu', level: 10, color: '#0099FF' },   // Bleu
         { id: 3, name: 'Rouge', level: 15, color: '#FF3333' },  // Rouge
         { id: 4, name: 'Violet', level: 20, color: '#DD00FF' }  // Violet
@@ -33,6 +33,21 @@ const ShopSystem = {
     getSkinColor: function(skinId) {
         const skin = this.skins.find(s => s.id === skinId);
         return skin ? skin.color : '#888888';
+    },
+    
+    // Retourner l'objet complet du skin (avec backgroundColor si applicable)
+    getSkinObject: function(skinId) {
+        const skin = this.skins.find(s => s.id === skinId);
+        if (!skin) return { color: '#888888' };
+        
+        // Retourner l'objet avec color et backgroundColor si Red Bull
+        if (skin.name === 'Red Bull') {
+            return {
+                color: skin.color,
+                backgroundColor: skin.backgroundColor
+            };
+        }
+        return { color: skin.color };
     }
 };
 
