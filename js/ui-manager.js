@@ -60,7 +60,7 @@ class UIManager {
                 audioSystem.setEffectsVolume(e.target.value);
             }
         });
-        document.getElementById('remapKeysBtn').addEventListener('click', () => this.startRemappingKeys());
+        // Remap keys UI removed — remapping still available via console if needed
 
         // SHOP PAGE
         document.getElementById('closeShopBtn').addEventListener('click', () => this.showPage('lobbyPage'));
@@ -429,12 +429,13 @@ class UIManager {
         document.getElementById('effectsVolume').value = user.effectsVolume;
         document.getElementById('effectsVolumeValue').textContent = user.effectsVolume + '%';
 
-        // Afficher les touches actuelles
-        document.getElementById('keyLeft').textContent = user.controls.left.toUpperCase();
-        document.getElementById('keyRight').textContent = user.controls.right.toUpperCase();
-        document.getElementById('keyRotate').textContent = user.controls.rotate.toUpperCase();
-        document.getElementById('keyDown').textContent = user.controls.down.toUpperCase();
-        document.getElementById('keyHardDrop').textContent = user.controls.hardDrop === ' ' ? 'Space' : user.controls.hardDrop.toUpperCase();
+        // PC key labels removed from UI — update only if elements exist (kept safe)
+        const el = id => document.getElementById(id);
+        const kLeft = el('keyLeft'); if (kLeft) kLeft.textContent = user.controls.left.toUpperCase();
+        const kRight = el('keyRight'); if (kRight) kRight.textContent = user.controls.right.toUpperCase();
+        const kRotate = el('keyRotate'); if (kRotate) kRotate.textContent = user.controls.rotate.toUpperCase();
+        const kDown = el('keyDown'); if (kDown) kDown.textContent = user.controls.down.toUpperCase();
+        const kHard = el('keyHardDrop'); if (kHard) kHard.textContent = (user.controls.hardDrop === ' ' ? 'Space' : user.controls.hardDrop.toUpperCase());
     }
 
     startRemappingKeys() {
@@ -486,11 +487,47 @@ class UIManager {
         promptKey();
     }
 
+    // ================= Scroll control during gameplay =================
+    _disablePageScrolling() {
+        if (!this._touchMoveHandler) {
+            this._touchMoveHandler = function (e) { e.preventDefault(); };
+            window.addEventListener('touchmove', this._touchMoveHandler, { passive: false });
+        }
+
+        if (!this._keyDownHandler) {
+            this._keyDownHandler = (e) => {
+                const blockedKeys = ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','Spacebar'];
+                if (blockedKeys.includes(e.code) || blockedKeys.includes(e.key)) {
+                    e.preventDefault();
+                }
+            };
+            window.addEventListener('keydown', this._keyDownHandler, { capture: true });
+        }
+
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+    }
+
+    _enablePageScrolling() {
+        if (this._touchMoveHandler) {
+            window.removeEventListener('touchmove', this._touchMoveHandler, { passive: false });
+            this._touchMoveHandler = null;
+        }
+        if (this._keyDownHandler) {
+            window.removeEventListener('keydown', this._keyDownHandler, { capture: true });
+            this._keyDownHandler = null;
+        }
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+    }
+
     startGame() {
         this.showPage('gamePage');
         if (window.tetrisGame) {
             window.tetrisGame.start();
             this.updateGameDisplay(0, 0);
+            // disable scrolling while game is active
+            this._disablePageScrolling();
         }
     }
 
@@ -504,6 +541,8 @@ class UIManager {
         if (window.tetrisGame) {
             window.tetrisGame.stop();
         }
+        // restore scrolling when leaving the game
+        this._enablePageScrolling();
         this.showPage('lobbyPage');
     }
 
