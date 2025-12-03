@@ -1,48 +1,45 @@
 // ============ INITIALISATION PRINCIPALE ============
 
 // ============ SYSTÈME DE VERSIONING AUTOMATIQUE ============
-class VersionManager {
+class VersionSystem {
     constructor() {
         this.versionKey = 'tetrisGameVersion';
-        this.version = this.loadVersion();
-        this.setupAutoIncrement();
-        this.displayVersion();
+        this.currentVersion = this.loadVersion();
+        this.updateVersionDisplay();
     }
 
     loadVersion() {
         const stored = localStorage.getItem(this.versionKey);
-        return stored ? parseFloat(stored) : 0.001;
+        return stored ? parseFloat(stored) : 0.01;
     }
 
-    saveVersion(v) {
-        localStorage.setItem(this.versionKey, v.toString());
-        this.version = v;
+    saveVersion() {
+        localStorage.setItem(this.versionKey, this.currentVersion.toFixed(3));
     }
 
-    increment() {
-        const newVersion = parseFloat((this.version + 0.001).toFixed(3));
-        this.saveVersion(newVersion);
-        this.displayVersion();
-        console.log(`📦 Version mise à jour: ${newVersion}`);
+    incrementVersion() {
+        this.currentVersion = parseFloat((this.currentVersion + 0.01).toFixed(3));
+        this.saveVersion();
+        this.updateVersionDisplay();
+        console.log(`📦 Version mise à jour: ${this.currentVersion}`);
     }
 
-    displayVersion() {
+    updateVersionDisplay() {
         const badge = document.getElementById('versionBadge');
         if (badge) {
-            badge.textContent = `Mise à jour ${this.version.toFixed(3)}`;
+            badge.textContent = `Mise à jour ${this.currentVersion.toFixed(2)}`;
         }
-    }
-
-    setupAutoIncrement() {
-        // Incrémenter la version à chaque changement utilisateur (login, logout, boutique, etc.)
-        window.addEventListener('userAction', () => {
-            this.increment();
-        });
     }
 }
 
-// Initialiser le système de versioning
-const versionManager = new VersionManager();
+// Initialiser le système de version
+const versionSystem = new VersionSystem();
+
+// Incrémenter la version au premier chargement (nouvelle session = nouvelle version)
+// Cette fonction sera appelée après chaque changement majeur
+function incrementGameVersion() {
+    versionSystem.incrementVersion();
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     // VÉRIFICATION DE SAUVEGARDES

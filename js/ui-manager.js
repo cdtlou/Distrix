@@ -141,7 +141,6 @@ class UIManager {
             this.showError('');
             document.getElementById('pseudoInput').value = '';
             document.getElementById('codeInput').value = '';
-            window.dispatchEvent(new CustomEvent('userAction', { detail: 'login' }));
             
             // Vérifier que l'utilisateur est bien connecté
             setTimeout(() => {
@@ -156,7 +155,6 @@ class UIManager {
         accountSystem.logout();
         document.getElementById('pseudoInput').value = '';
         document.getElementById('codeInput').value = '';
-        window.dispatchEvent(new CustomEvent('userAction', { detail: 'logout' }));
         this.showPage('loginPage');
     }
 
@@ -296,7 +294,6 @@ class UIManager {
         accountSystem.buyItem('skins', skinId);
         // Équiper automatiquement le nouveau skin
         accountSystem.equipItem('skins', skinId);
-        window.dispatchEvent(new CustomEvent('userAction', { detail: 'buySkin' }));
         alert('Skin débloqué et équipé!');
         this.displayShop();
         this.displayCasier();
@@ -321,7 +318,6 @@ class UIManager {
         accountSystem.buyItem('musics', musicId);
         // Équiper automatiquement la nouvelle musique
         accountSystem.equipItem('musics', musicId);
-        window.dispatchEvent(new CustomEvent('userAction', { detail: 'buyMusic' }));
         alert('Musique débloquée et équipée!');
         this.displayShop();
         this.displayCasier();
