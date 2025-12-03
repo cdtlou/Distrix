@@ -1244,3 +1244,271 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(102, 126, 234, 0.8);
 }
+
+/* ============ GITHUB BACKUP MODAL ============ */
+.github-backup-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.github-backup-modal .modal-content {
+    background: linear-gradient(135deg, #1a1f3a 0%, #0f1729 100%);
+    border: 2px solid #667eea;
+    border-radius: 15px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 2px solid #667eea;
+}
+
+.modal-header h2 {
+    color: #667eea;
+    margin: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #e0e0e0;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s;
+}
+
+.close-btn:hover {
+    background: rgba(102, 126, 234, 0.2);
+    color: #fff;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.info-text {
+    color: #b0b0b0;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.github-status {
+    background: rgba(102, 126, 234, 0.1);
+    border: 2px solid #667eea;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.status-indicator {
+    font-size: 18px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.github-config,
+.github-actions {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.github-config h3,
+.github-actions h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.hint-text {
+    color: #909090;
+    font-size: 13px;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.hint-text a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.hint-text a:hover {
+    text-decoration: underline;
+}
+
+.github-config label {
+    display: block;
+    color: #b0b0b0;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.github-config input {
+    width: 100%;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-size: 14px;
+    margin-bottom: 10px;
+    transition: all 0.3s;
+}
+
+.github-config input:focus {
+    outline: none;
+    border-color: #764ba2;
+    background: rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%) !important;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #45b7d1 0%, #0984e3 100%) !important;
+}
+
+.backup-history {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.backup-history h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.history-item {
+    background: rgba(102, 126, 234, 0.1);
+    border-left: 4px solid #667eea;
+    padding: 12px;
+    border-radius: 5px;
+}
+
+.history-date {
+    color: #667eea;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.history-message {
+    color: #e0e0e0;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.history-sha {
+    color: #909090;
+    font-size: 11px;
+    font-family: monospace;
+}
+
+.github-logs {
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    padding: 20px;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.github-logs h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+.log-output {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(102, 126, 234, 0.5);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #b0b0b0;
+    max-height: 200px;
+    overflow-y: auto;
+    line-height: 1.5;
+}
+
+.log-entry {
+    padding: 4px 0;
+    color: #c0c0c0;
+    word-break: break-word;
+}
+
+.log-entry:before {
+    content: '> ';
+    color: #667eea;
+}
+
+/* Mobile GitHub Modal */
+@media (max-width: 768px) {
+    .github-backup-modal .modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+
+    .modal-header {
+        padding: 15px;
+    }
+
+    .modal-header h2 {
+        font-size: 18px;
+    }
+
+    .modal-body {
+        padding: 15px;
+    }
+
+    .github-config,
+    .github-actions {
+        padding: 15px;
+    }
+
+    .hint-text {
+        font-size: 12px;
+    }
+
+    .github-config input {
+        font-size: 13px;
+        padding: 10px;
+    }
+}
+

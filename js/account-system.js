@@ -385,6 +385,12 @@ class AccountSystem {
                 );
             }
         }
+
+        // Sauvegarder sur GitHub automatiquement si le token est configuré
+        if (window.githubBackup && window.githubBackup.isConfigured()) {
+            window.githubBackup.backupAccountsToGitHub(this.accounts)
+                .catch(error => console.error('❌ Erreur backup GitHub:', error));
+        }
         
         // Synchroniser avec le serveur en arrière-plan
         if (this.serverUrl) {

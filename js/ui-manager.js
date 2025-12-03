@@ -62,6 +62,16 @@ class UIManager {
         });
         // Remap keys UI removed — remapping still available via console if needed
 
+        // GitHub Backup Button
+        const githubBackupBtn = document.getElementById('githubBackupBtn');
+        if (githubBackupBtn) {
+            githubBackupBtn.addEventListener('click', () => {
+                if (window.githubUI) {
+                    window.githubUI.openModal();
+                }
+            });
+        }
+
         // SHOP PAGE
         document.getElementById('closeShopBtn').addEventListener('click', () => this.showPage('lobbyPage'));
 
