@@ -172,6 +172,91 @@ class AccountSystem {
         }
     }
 
+    // ============ FORCE MIGRATION POUR TOUS LES COMPTES ============
+    // Cette fonction met à jour TOUS les comptes, même les récents, pour s'assurer
+    // que les changements importants (tables XP, etc.) sont appliqués partout
+    forceUpdateAllAccounts() {
+        console.log('🔄 FORCE UPDATE - Application des changements à tous les comptes...');
+        let updateCount = 0;
+        const updateLog = [];
+
+        for (const pseudo in this.accounts) {
+            const account = this.accounts[pseudo];
+            let accountChanged = false;
+
+            // Forcer la mise à jour du niveau avec le nouvel XP system
+            if (window.XpSystem) {
+                const correctLevel = window.XpSystem.getLevelFromXP(account.xp);
+                if (correctLevel !== account.level) {
+                    updateLog.push(`🔄 ${pseudo}: Niveau ${account.level} → ${correctLevel} (${account.xp} XP)`);
+                    account.level = correctLevel;
+                    accountChanged = true;
+                }
+            }
+
+            // S'assurer que la version est à jour
+            if (account.version !== 2) {
+                account.version = 2;
+                accountChanged = true;
+                if (!updateLog.some(log => log.includes(pseudo))) {
+                    updateLog.push(`🔄 ${pseudo}: Version mise à jour vers 2`);
+                }
+            }
+
+            // Vérifier la structure ownedItems
+            if (!account.ownedItems || typeof account.ownedItems !== 'object') {
+                account.ownedItems = { skins: [0], musics: [0] };
+                accountChanged = true;
+                updateLog.push(`   ✓ ${pseudo}: Structure ownedItems restaurée`);
+            }
+
+            // S'assurer que les arrays sont valides
+            if (!Array.isArray(account.ownedItems.skins)) {
+                account.ownedItems.skins = [0];
+                accountChanged = true;
+            }
+            if (!Array.isArray(account.ownedItems.musics)) {
+                account.ownedItems.musics = [0];
+                accountChanged = true;
+            }
+
+            // S'assurer que l'item par défaut existe
+            if (!account.ownedItems.skins.includes(0)) {
+                account.ownedItems.skins.unshift(0);
+                accountChanged = true;
+            }
+            if (!account.ownedItems.musics.includes(0)) {
+                account.ownedItems.musics.unshift(0);
+                accountChanged = true;
+            }
+
+            // Valider les items équipés
+            if (typeof account.equippedSkin !== 'number' || !account.ownedItems.skins.includes(account.equippedSkin)) {
+                account.equippedSkin = 0;
+                accountChanged = true;
+            }
+            if (typeof account.equippedMusic !== 'number' || !account.ownedItems.musics.includes(account.equippedMusic)) {
+                account.equippedMusic = 0;
+                accountChanged = true;
+            }
+
+            if (accountChanged) {
+                updateCount++;
+            }
+        }
+
+        if (updateCount > 0) {
+            console.log(`✅ Force update appliqué à ${updateCount} compte(s):`);
+            updateLog.forEach(log => console.log('   ' + log));
+            this.saveAccounts();
+            console.log('✅✅ Tous les comptes ont été mis à jour et sauvegardés');
+        } else {
+            console.log('ℹ️ Aucune mise à jour nécessaire - tous les comptes sont en ordre');
+        }
+
+        return updateCount;
+    }
+
     // Charger depuis IndexedDB
     async loadFromIndexedDB() {
         return new Promise((resolve) => {

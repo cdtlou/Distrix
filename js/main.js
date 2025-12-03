@@ -4,6 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Démarrage - Vérification du stockage...');
     accountSystem.debugVerifyStorage();
     
+    // FORCE UPDATE DE TOUS LES COMPTES (appliquer les changements importants à tout le monde)
+    console.log('🔄 Mise à jour des comptes...');
+    const updatedCount = accountSystem.forceUpdateAllAccounts();
+    
     // TEST XP SYSTEM (pour vérifier que les affichages sont corrects)
     console.log('🔍 Vérification du système XP:');
     console.log('   Niveau 1:', window.XpSystem.getXpRequiredForLevel(1), 'XP (doit être 0)');
