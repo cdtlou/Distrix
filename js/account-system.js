@@ -73,23 +73,26 @@ class AccountSystem {
     migrateOldAccounts() {
         let hasMigrated = false;
         const migrationLog = [];
+        const CURRENT_VERSION = 2; // Version 2 = nouvelle table XP + affichage XP correct
 
         for (const pseudo in this.accounts) {
             const account = this.accounts[pseudo];
             let accountChanged = false;
 
-            // Vérifier si c'est un ancien compte (pas de version)
-            if (!account.version) {
-                account.version = 1;
+            // Vérifier la version du compte
+            const accountVersion = account.version || 0;
+            if (accountVersion < CURRENT_VERSION) {
+                account.version = CURRENT_VERSION;
                 accountChanged = true;
-                migrationLog.push(`➡️ ${pseudo}: Ajout version`);
+                migrationLog.push(`➡️ ${pseudo}: Version ${accountVersion} → ${CURRENT_VERSION}`);
             }
 
             // Recalculer le niveau selon le nouvel XP system (0→75000 sur 13 niveaux)
-            if (window.XpSystem) {
+            // TOUJOURS le faire pour les anciens comptes (même si version existe)
+            if (accountVersion < CURRENT_VERSION && window.XpSystem) {
                 const newLevel = window.XpSystem.getLevelFromXP(account.xp);
                 if (newLevel !== account.level) {
-                    migrationLog.push(`➡️ ${pseudo}: Niveau ${account.level} → ${newLevel} (${account.xp} XP)`);
+                    migrationLog.push(`   ✓ Niveau: ${account.level} → ${newLevel} (${account.xp} XP total)`);
                     account.level = newLevel;
                     accountChanged = true;
                 }
@@ -99,59 +102,59 @@ class AccountSystem {
             if (!account.ownedItems) {
                 account.ownedItems = { skins: [0], musics: [0] };
                 accountChanged = true;
-                migrationLog.push(`➡️ ${pseudo}: Ajout ownedItems structure`);
+                migrationLog.push(`   ✓ Structure ownedItems créée`);
             }
 
             // Vérifier les skins et musics
             if (account.ownedItems.skins && !Array.isArray(account.ownedItems.skins)) {
                 account.ownedItems.skins = [0];
                 accountChanged = true;
-                migrationLog.push(`➡️ ${pseudo}: Réparation skins array`);
+                migrationLog.push(`   ✓ Skins: array réparé`);
             }
 
             if (account.ownedItems.musics && !Array.isArray(account.ownedItems.musics)) {
                 account.ownedItems.musics = [0];
                 accountChanged = true;
-                migrationLog.push(`➡️ ${pseudo}: Réparation musics array`);
+                migrationLog.push(`   ✓ Musics: array réparé`);
             }
 
             // S'assurer qu'il y a toujours au moins l'item par défaut
             if (!account.ownedItems.skins.includes(0)) {
                 account.ownedItems.skins.push(0);
                 accountChanged = true;
-                migrationLog.push(`➡️ ${pseudo}: Ajout skin par défaut`);
+                migrationLog.push(`   ✓ Skin par défaut ajouté`);
             }
 
             if (!account.ownedItems.musics.includes(0)) {
                 account.ownedItems.musics.push(0);
                 accountChanged = true;
-                migrationLog.push(`➡️ ${pseudo}: Ajout musique par défaut`);
+                migrationLog.push(`   ✓ Musique par défaut ajoutée`);
             }
 
             // Vérifier que equippedSkin/Music existent et sont valides
             if (account.equippedSkin === undefined) {
                 account.equippedSkin = 0;
                 accountChanged = true;
-                migrationLog.push(`➡️ ${pseudo}: Ajout equippedSkin par défaut`);
+                migrationLog.push(`   ✓ equippedSkin: défaut défini`);
             }
 
             if (account.equippedMusic === undefined) {
                 account.equippedMusic = 0;
                 accountChanged = true;
-                migrationLog.push(`➡️ ${pseudo}: Ajout equippedMusic par défaut`);
+                migrationLog.push(`   ✓ equippedMusic: défaut défini`);
             }
 
             // Vérifier que les items équipés sont bien possédés
             if (account.ownedItems.skins && !account.ownedItems.skins.includes(account.equippedSkin)) {
                 account.equippedSkin = 0;
                 accountChanged = true;
-                migrationLog.push(`➡️ ${pseudo}: Reset equippedSkin à défaut (pas possédé)`);
+                migrationLog.push(`   ✓ equippedSkin: reset (pas possédé)`);
             }
 
             if (account.ownedItems.musics && !account.ownedItems.musics.includes(account.equippedMusic)) {
                 account.equippedMusic = 0;
                 accountChanged = true;
-                migrationLog.push(`➡️ ${pseudo}: Reset equippedMusic à défaut (pas possédé)`);
+                migrationLog.push(`   ✓ equippedMusic: reset (pas possédé)`);
             }
 
             if (accountChanged) {
@@ -160,10 +163,10 @@ class AccountSystem {
         }
 
         if (hasMigrated) {
-            console.log('🔄 Migration des anciens comptes:');
+            console.log('🔄 MIGRATION DES ANCIENS COMPTES:');
             migrationLog.forEach(log => console.log(log));
             this.saveAccounts();
-            console.log('✅ Migration complétée et sauvegardée');
+            console.log('✅✅ Migration complétée et sauvegardée');
         } else {
             console.log('ℹ️ Aucune migration nécessaire - tous les comptes sont à jour');
         }
