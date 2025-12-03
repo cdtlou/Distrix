@@ -655,8 +655,8 @@ body {
 .mobile-controls {
     display: none;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-top: 20px;
+    gap: 16px;
+    margin-top: 25px;
 }
 
 .mobile-controls.active {
@@ -664,15 +664,17 @@ body {
 }
 
 .control-btn {
-    padding: 26px;
+    padding: 45px;
     background: #667eea;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     color: white;
-    font-size: 28px;
+    font-size: 36px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.2s ease;
+    min-width: 130px;
+    min-height: 130px;
 }
 
 .control-btn:active {
@@ -956,7 +958,7 @@ body {
     }
 
     #gameCanvas {
-        max-width: 420px;
+        max-width: 450px;
         height: auto;
         touch-action: none;
     }
@@ -964,22 +966,22 @@ body {
     .mobile-controls.active {
         display: grid;
         width: 100%;
-        max-width: 420px;
+        max-width: 450px;
         grid-template-columns: repeat(3, 1fr);
-        gap: 18px;
+        gap: 20px;
     }
 
-    .control-btn {
-        padding: 50px;
-        font-size: 44px;
-        border-radius: 16px;
-        min-width: 120px;
-        min-height: 120px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-        touch-action: manipulation;
-        -webkit-user-select: none;
-        user-select: none;
-    }
+.control-btn {
+    padding: 50px;
+    font-size: 48px;
+    border-radius: 16px;
+    min-width: 140px;
+    min-height: 140px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+}
 
     /* Cacher la barre droite en mobile */
     .game-right {
