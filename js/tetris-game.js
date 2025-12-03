@@ -423,6 +423,31 @@ class TetrisGame {
                 this.board.splice(row, 1);
                 this.board.unshift(Array(this.COLS).fill(0));
             }
+            
+            // BONUS XP: +10 XP par ligne complétée
+            const bonusXP = linesToClear.length * 10;
+            console.log(`🎯 ${linesToClear.length} ligne(s) complétée(s)! +${bonusXP} XP BONUS`);
+            
+            // Ajouter le bonus XP au compteur de la partie
+            this.xpGainedThisGame += bonusXP;
+            
+            // Ajouter le bonus XP au compte
+            accountSystem.addXP(bonusXP);
+            
+            // Créer un popup XP pour afficher le bonus
+            for (let i = 0; i < linesToClear.length; i++) {
+                const row = linesToClear[i];
+                const popupX = Math.floor(this.COLS / 2);
+                const popupY = row;
+                
+                this.xpPopups.push({
+                    x: popupX,
+                    y: popupY,
+                    xp: 10,
+                    age: 0,
+                    opacity: 1
+                });
+            }
         }
     }
 
