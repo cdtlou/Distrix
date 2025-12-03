@@ -1,3 +1,27 @@
+// ============ SYSTÈME DE VERSION ============
+let appVersion = '0.01'; // Version par défaut
+
+// Charger la version depuis le fichier version.txt
+fetch('version.txt')
+    .then(response => response.text())
+    .then(text => {
+        appVersion = text.trim();
+        console.log(`📦 Version actuelle: ${appVersion}`);
+        
+        // Mettre à jour l'affichage de la version dans le lobby
+        const versionDisplay = document.getElementById('versionDisplay');
+        if (versionDisplay) {
+            versionDisplay.textContent = `v${appVersion}`;
+        }
+    })
+    .catch(error => {
+        console.warn('⚠️ Impossible de charger la version:', error);
+        console.log(`📦 Utilisation de la version par défaut: ${appVersion}`);
+    });
+
+// Exporter la version globalement
+window.appVersion = appVersion;
+
 // ============ INITIALISATION PRINCIPALE ============
 document.addEventListener('DOMContentLoaded', () => {
     // DEBUG: Vérifier l'état complet du stockage au démarrage
