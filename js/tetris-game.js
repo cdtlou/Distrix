@@ -578,18 +578,24 @@ class TetrisGame {
     drawBlock(x, y, color) {
         const size = this.BLOCK_SIZE;
         
-        // Support pour Red Bull: si color contient un objet avec backgroundColor
+        // Support pour Red Bull et autres skins avec texte personnalisé
         let blockColor = color;
         let bgColor = null;
+        let textContent = null;
+        let textColor = null;
         
         if (typeof color === 'object' && color.color) {
             blockColor = color.color;
             bgColor = color.backgroundColor || null;
+            textContent = color.textContent || null;
+            textColor = color.textColor || null;
         } else if (typeof color === 'string' && color.startsWith('{')) {
             try {
                 const obj = JSON.parse(color);
                 blockColor = obj.color;
                 bgColor = obj.backgroundColor || null;
+                textContent = obj.textContent || null;
+                textColor = obj.textColor || null;
             } catch (e) {
                 blockColor = color;
             }
@@ -599,13 +605,13 @@ class TetrisGame {
         this.ctx.fillStyle = blockColor;
         this.ctx.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
         
-        // Si c'est Red Bull (bleu foncé #001E50), ajouter du texte "RB"
-        if (blockColor === '#001E50' && size > 20) {
-            this.ctx.fillStyle = '#C0B0A0';
-            this.ctx.font = `bold ${Math.floor(size * 0.5)}px Arial`;
+        // Si texte personnalisé (Red Bull: "red bull" en rouge)
+        if (textContent && textColor && size > 20) {
+            this.ctx.fillStyle = textColor;
+            this.ctx.font = `bold ${Math.floor(size * 0.4)}px Arial`;
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'middle';
-            this.ctx.fillText('RB', x * size + size / 2, y * size + size / 2);
+            this.ctx.fillText(textContent, x * size + size / 2, y * size + size / 2);
         }
         
         // Bordure

@@ -3,7 +3,7 @@ const ShopSystem = {
     // Définition des skins
     skins: [
         { id: 0, name: 'Classic', level: 1, color: '#888888' },
-        { id: 1, name: 'Red Bull', level: 2, color: '#001E50', backgroundColor: '#C0B0A0' },
+        { id: 1, name: 'Red Bull', level: 2, color: '#0066FF', backgroundColor: '#0066FF', textContent: 'red bull', textColor: '#FF0000' },
         { id: 2, name: 'Vert', level: 3, color: '#00FF00' },
         { id: 3, name: 'Bleu', level: 4, color: '#0099FF' },
         { id: 4, name: 'Rouge', level: 5, color: '#FF3333' },
@@ -56,11 +56,13 @@ const ShopSystem = {
         const skin = this.skins.find(s => s.id === skinId);
         if (!skin) return { color: '#888888' };
         
-        // Retourner l'objet avec color et backgroundColor si Red Bull
+        // Retourner l'objet avec toutes les propriétés du skin (color, backgroundColor, textContent, textColor)
         if (skin.name === 'Red Bull') {
             return {
                 color: skin.color,
-                backgroundColor: skin.backgroundColor
+                backgroundColor: skin.backgroundColor,
+                textContent: skin.textContent,
+                textColor: skin.textColor
             };
         }
         return { color: skin.color };

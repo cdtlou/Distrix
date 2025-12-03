@@ -231,7 +231,13 @@ class UIManager {
             }
 
             // Afficher un carré avec la couleur du skin
-            const colorSquare = `<div class="color-square" style="background-color: ${skin.color}; width: 60px; height: 60px; border-radius: 8px; margin: 0 auto 10px; border: 2px solid rgba(255, 255, 255, 0.3);"></div>`;
+            // Special case pour Red Bull: afficher le texte "red bull" en rouge
+            let colorSquare = '';
+            if (skin.name === 'Red Bull' && skin.textContent && skin.textColor) {
+                colorSquare = `<div class="color-square" style="background-color: ${skin.color}; width: 60px; height: 60px; border-radius: 8px; margin: 0 auto 10px; border: 2px solid rgba(255, 255, 255, 0.3); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; color: ${skin.textColor};">${skin.textContent}</div>`;
+            } else {
+                colorSquare = `<div class="color-square" style="background-color: ${skin.color}; width: 60px; height: 60px; border-radius: 8px; margin: 0 auto 10px; border: 2px solid rgba(255, 255, 255, 0.3);"></div>`;
+            }
 
             div.innerHTML = `
                 ${colorSquare}
