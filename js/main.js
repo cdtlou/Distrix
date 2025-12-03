@@ -6,6 +6,8 @@ class VersionSystem {
         this.versionKey = 'tetrisGameVersion';
         this.currentVersion = this.loadVersion();
         this.updateVersionDisplay();
+        // Incrémenter automatiquement à chaque page load (cache bypass)
+        this.incrementVersion();
     }
 
     loadVersion() {

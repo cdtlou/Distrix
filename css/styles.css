@@ -861,12 +861,12 @@ body {
     }
 
     .control-btn {
-        padding: 40px;
-        font-size: 36px;
-        border-radius: 14px;
-        min-width: 95px;
-        min-height: 95px;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        padding: 50px;
+        font-size: 44px;
+        border-radius: 16px;
+        min-width: 120px;
+        min-height: 120px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.4);
     }
 
     .control-btn:active {
@@ -892,33 +892,33 @@ body {
     .game-mobile-sidebar {
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        width: 90px;
+        gap: 12px;
+        width: 110px;
         flex-shrink: 0;
     }
 
     .game-mobile-sidebar .info-box {
-        padding: 15px 10px;
+        padding: 18px 10px;
         margin: 0;
         border-radius: 8px;
     }
 
     .game-mobile-sidebar .info-box h3 {
-        font-size: 16px;
-        margin-bottom: 5px;
+        font-size: 20px;
+        margin-bottom: 6px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
     .game-mobile-sidebar .info-box p {
-        font-size: 22px;
+        font-size: 28px;
         margin: 0;
     }
 
     .game-mobile-sidebar .btn {
-        padding: 10px 5px;
-        font-size: 15px;
+        padding: 12px 6px;
+        font-size: 16px;
         white-space: nowrap;
         border-radius: 5px;
     }
@@ -944,7 +944,7 @@ body {
     }
 
     #nextPieceCanvas {
-        max-width: 160px;
+        max-width: 200px;
         height: auto;
     }
 
@@ -956,7 +956,7 @@ body {
     }
 
     #gameCanvas {
-        max-width: 360px;
+        max-width: 420px;
         height: auto;
         touch-action: none;
     }
@@ -964,19 +964,21 @@ body {
     .mobile-controls.active {
         display: grid;
         width: 100%;
-        max-width: 360px;
+        max-width: 420px;
         grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
+        gap: 18px;
     }
 
     .control-btn {
-        padding: 18px 10px;
-        font-size: 20px;
+        padding: 50px;
+        font-size: 44px;
+        border-radius: 16px;
+        min-width: 120px;
+        min-height: 120px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.4);
         touch-action: manipulation;
         -webkit-user-select: none;
         user-select: none;
-        min-height: 65px;
-        min-width: 65px;
     }
 
     /* Cacher la barre droite en mobile */
