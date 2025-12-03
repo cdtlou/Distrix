@@ -742,6 +742,23 @@ body {
     }
 }
 
+/* ============ GAME PAGE UNIFORM SCALE (20% increase) ============ */
+/* Apply a uniform visual scale to the entire game area so gameplay is unchanged */
+#gamePage .game-container {
+    transform: scale(1.2);
+    transform-origin: top center;
+}
+
+/* Ensure the game page keeps enough space to show scaled content */
+#gamePage {
+    overflow: visible;
+}
+
+/* Make sure fixed mobile controls remain reachable after scaling */
+.mobile-controls {
+    bottom: 18px;
+}
+
 @media (max-width: 768px) {
     .login-container {
         padding: 40px 20px;
