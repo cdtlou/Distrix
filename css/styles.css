@@ -81,13 +81,6 @@ body {
 .btn-small {
     padding: 8px 16px;
     font-size: 14px;
-    white-space: normal;
-    line-height: 1.4;
-    min-height: 60px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
 }
 
 .btn:disabled {
@@ -838,10 +831,29 @@ body {
 
     /* Agrandir les contrôles tactiles pour les doigts */
     .mobile-controls {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 15px;
-        margin-top: 15px;
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        /* Make mobile controls a fixed bottom bar for easier access */
+        .mobile-controls {
+            position: fixed;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 24px);
+            max-width: 640px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+            padding: 6px;
+            z-index: 9999;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+            background: rgba(10,14,39,0.7);
+            border-radius: 14px;
+            backdrop-filter: blur(6px);
+            touch-action: manipulation;
     }
 
     .control-btn {
@@ -946,11 +958,28 @@ body {
     }
 
     .mobile-controls.active {
-        display: grid;
-        width: 100%;
-        max-width: 280px;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
+            /* keep fixed bottom layout when active */
+            display: grid;
+            width: calc(100% - 24px);
+            max-width: 640px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+        }
+        /* ensure active mobile-controls stays fixed at bottom */
+        .mobile-controls.active {
+            display: grid;
+            width: 100%;
+            max-width: 280px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            position: fixed;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            background: rgba(10,14,39,0.7);
+            border-radius: 12px;
+            padding: 6px;
     }
 
     .control-btn {
