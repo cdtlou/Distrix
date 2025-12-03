@@ -41,14 +41,14 @@ body {
 
 /* ============ BOUTONS ============ */
 .btn {
-    padding: 12px 24px;
+    padding: 14px 28px;
     border: none;
     border-radius: 10px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     font-weight: bold;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 18px;
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -602,8 +602,8 @@ body {
 
 .game-container {
     display: flex;
-    gap: 30px;
-    max-width: 900px;
+    gap: 40px;
+    max-width: 1000px;
     width: 100%;
 }
 
@@ -661,18 +661,18 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
 }
 
 .game-info {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 20px;
 }
 
 .info-box {
     background: rgba(102, 126, 234, 0.1);
-    padding: 20px;
+    padding: 30px;
     border-radius: 10px;
     border-left: 4px solid #667eea;
     text-align: center;
@@ -680,19 +680,19 @@ body {
 
 .info-box h3 {
     color: #667eea;
-    margin-bottom: 10px;
-    font-size: 14px;
+    margin-bottom: 15px;
+    font-size: 18px;
 }
 
 .info-box p {
-    font-size: 32px;
+    font-size: 48px;
     font-weight: bold;
     color: #ffd700;
 }
 
 .next-piece-box {
     background: rgba(102, 126, 234, 0.1);
-    padding: 15px;
+    padding: 25px;
     border-radius: 10px;
     border-left: 4px solid #667eea;
     text-align: center;
@@ -700,8 +700,8 @@ body {
 
 .next-piece-box h3 {
     color: #667eea;
-    margin-bottom: 10px;
-    font-size: 14px;
+    margin-bottom: 15px;
+    font-size: 18px;
 }
 
 #nextPieceCanvas {
@@ -714,10 +714,10 @@ body {
 
 .game-buttons {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     justify-content: center;
     width: 100%;
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
 /* ============ RESPONSIVE ============ */
