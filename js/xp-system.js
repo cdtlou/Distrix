@@ -1,25 +1,23 @@
 // ============ SYSTÈME XP ET NIVEAUX ============
 const XpSystem = {
-    // Paliers XP totaux - Les vrais niveaux sont 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60
-    // Les niveaux intermédiaires sont calculés proportionnellement
+    // Paliers XP totaux - Niveaux 1 à 13 avec progression exacte
     levelThresholds: {
         1: 0,
-        5: 150,
-        10: 500,
-        15: 1200,
-        20: 2000,
-        25: 4500,
-        30: 9000,
-        35: 15000,
-        40: 22000,
-        45: 30000,
-        50: 40000,
-        55: 55000,
-        60: 75000
+        2: 150,
+        3: 500,
+        4: 1200,
+        5: 2000,
+        6: 4500,
+        7: 9000,
+        8: 15000,
+        9: 22000,
+        10: 30000,
+        11: 40000,
+        12: 55000,
+        13: 75000
     },
 
-    // Obtenir le niveau réel basé sur l'XP total
-    // Les niveaux affichés sont 1, 5, 10, 15, 20, etc.
+    // Obtenir le niveau réel basé sur l'XP total (max niveau 13)
     getLevelFromXP: function(totalXp) {
         const thresholds = Object.keys(this.levelThresholds)
             .map(Number)
@@ -35,23 +33,21 @@ const XpSystem = {
             }
         }
 
-        return currentLevel;
+        // Capper au niveau maximum (13)
+        return Math.min(currentLevel, 13);
     },
 
     // Obtenir l'XP requis cumulatif pour atteindre un niveau
     getXpRequiredForLevel: function(level) {
-        // Arrondir au palier le plus proche
-        const thresholds = Object.keys(this.levelThresholds)
-            .map(Number)
-            .sort((a, b) => a - b);
-
-        // Trouver le palier exact ou le plus proche
-        if (this.levelThresholds[level] !== undefined) {
-            return this.levelThresholds[level];
+        // Capper au niveau maximum (13)
+        const cappedLevel = Math.min(level, 13);
+        
+        if (this.levelThresholds[cappedLevel] !== undefined) {
+            return this.levelThresholds[cappedLevel];
         }
 
-        // Si le niveau n'existe pas dans les paliers, retourner le dernier
-        return this.levelThresholds[thresholds[thresholds.length - 1]];
+        // Si le niveau n'existe pas, retourner le maximum
+        return this.levelThresholds[13];
     },
 
     // Obtenir la progression pour le prochain palier
@@ -61,15 +57,21 @@ const XpSystem = {
             .sort((a, b) => a - b);
 
         const currentLevel = this.getLevelFromXP(totalXp);
-        const currentLevelIndex = thresholds.indexOf(currentLevel);
-
-        // Trouver le prochain niveau
-        let nextLevel = currentLevel;
-        let nextLevelIndex = currentLevelIndex + 1;
-
-        if (nextLevelIndex < thresholds.length) {
-            nextLevel = thresholds[nextLevelIndex];
+        
+        // Si on est au niveau max, pas de prochain niveau
+        if (currentLevel >= 13) {
+            return {
+                current: 0,
+                required: 0,
+                percentage: 100,
+                currentLevel: 13,
+                nextLevel: 13,
+                isMaxLevel: true
+            };
         }
+
+        const currentLevelIndex = thresholds.indexOf(currentLevel);
+        const nextLevel = thresholds[currentLevelIndex + 1];
 
         const currentLevelXp = this.levelThresholds[currentLevel];
         const nextLevelXp = this.levelThresholds[nextLevel];
@@ -82,7 +84,8 @@ const XpSystem = {
             required: required,
             percentage: required > 0 ? Math.floor((progress / required) * 100) : 100,
             currentLevel: currentLevel,
-            nextLevel: nextLevel
+            nextLevel: nextLevel,
+            isMaxLevel: false
         };
     },
 
