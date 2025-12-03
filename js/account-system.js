@@ -476,6 +476,49 @@ class AccountSystem {
         this.saveAccounts();
     }
 
+    // ============ SYNCHRONISATION ROBUSTE DES ÉQUIPEMENTS ============
+    
+    /**
+     * Synchroniser les changements d'équipement (skin/musique) ET mettre à jour
+     * TOUS les comptes avec les nouveaux items, sans doublons
+     */
+    syncEquipmentChange(itemType, itemIndex) {
+        if (!this.currentUser) return;
+        
+        const user = this.accounts[this.currentUser];
+        const ownedList = user.ownedItems[itemType];
+        
+        // Vérifier que l'item n'existe pas déjà dans owned (pas de doublon)
+        if (!ownedList.includes(itemIndex)) {
+            ownedList.push(itemIndex);
+            console.log(`✅ ${itemType} #${itemIndex} ajouté (pas de doublon)`);
+        } else {
+            console.log(`ℹ️ ${itemType} #${itemIndex} déjà possédé (doublon évité)`);
+        }
+        
+        // Équiper l'item
+        if (itemType === 'skins') {
+            user.equippedSkin = itemIndex;
+        } else if (itemType === 'musics') {
+            user.equippedMusic = itemIndex;
+        }
+        
+        // Sauvegarder immédiatement
+        this.saveAccounts();
+        
+        // Vérifier l'intégrité: que l'item est bien équipé ET possédé
+        const isEquipped = itemType === 'skins' ? user.equippedSkin === itemIndex : user.equippedMusic === itemIndex;
+        const isOwned = ownedList.includes(itemIndex);
+        
+        if (isEquipped && isOwned) {
+            console.log(`✅✅ SYNCHRONISATION OK - ${itemType} #${itemIndex} équipé et possédé`);
+        } else {
+            console.error(`❌ ERREUR SYNC - ${itemType} #${itemIndex}: équipé=${isEquipped}, possédé=${isOwned}`);
+        }
+        
+        return { success: true, isNew: true };
+    }
+
     // ============ SYSTÈME DE SAUVEGARDE/RESTAURATION ============
     
     // Récupérer les données depuis le backup si le principal est corrompu
