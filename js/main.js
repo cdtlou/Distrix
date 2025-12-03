@@ -1,49 +1,31 @@
 // ============ INITIALISATION PRINCIPALE ============
 
 // ============ SYSTÈME DE VERSIONING AUTOMATIQUE ============
-class VersionSystem {
-    constructor() {
-        this.versionKey = 'tetrisGameVersion';
-        this.currentVersion = this.loadVersion();
-        this.updateVersionDisplay();
-        // Incrémenter automatiquement à chaque page load (cache bypass)
-        this.incrementVersion();
+function initializeVersionSystem() {
+    // Récupérer ou initialiser la version depuis localStorage
+    let version = parseFloat(localStorage.getItem('appVersion') || '0.000');
+    
+    // Incrémenter de 0.001 à chaque chargement
+    version += 0.001;
+    version = parseFloat(version.toFixed(3)); // Limiter à 3 décimales
+    
+    // Sauvegarder la nouvelle version
+    localStorage.setItem('appVersion', version.toString());
+    
+    // Afficher la version à côté de "Paramètres" sur le lobby
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        settingsBtn.innerHTML = `⚙️ Paramètres<br><span style="font-size: 12px; opacity: 0.8;">mise à jour ${version.toFixed(3)}</span>`;
     }
-
-    loadVersion() {
-        const stored = localStorage.getItem(this.versionKey);
-        return stored ? parseFloat(stored) : 0.01;
-    }
-
-    saveVersion() {
-        localStorage.setItem(this.versionKey, this.currentVersion.toFixed(3));
-    }
-
-    incrementVersion() {
-        this.currentVersion = parseFloat((this.currentVersion + 0.01).toFixed(3));
-        this.saveVersion();
-        this.updateVersionDisplay();
-        console.log(`📦 Version mise à jour: ${this.currentVersion}`);
-    }
-
-    updateVersionDisplay() {
-        const badge = document.getElementById('versionBadge');
-        if (badge) {
-            badge.textContent = `Mise à jour ${this.currentVersion.toFixed(2)}`;
-        }
-    }
-}
-
-// Initialiser le système de version
-const versionSystem = new VersionSystem();
-
-// Incrémenter la version au premier chargement (nouvelle session = nouvelle version)
-// Cette fonction sera appelée après chaque changement majeur
-function incrementGameVersion() {
-    versionSystem.incrementVersion();
+    
+    console.log(`🔄 Version: ${version.toFixed(3)}`);
+    return version;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialiser le système de versioning en premier
+    initializeVersionSystem();
+    
     // VÉRIFICATION DE SAUVEGARDES
     // Si les comptes principaux sont vides, essayer de récupérer depuis le backup
     if (Object.keys(accountSystem.accounts).length === 0) {

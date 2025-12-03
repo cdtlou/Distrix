@@ -171,10 +171,6 @@ class AccountSystem {
         // Vérifier que le compte a bien été créé
         if (this.accounts[pseudo]) {
             console.log(`✅ Compte "${pseudo}" créé et sauvegardé`);
-            // Incrémenter la version du jeu
-            if (window.incrementGameVersion) {
-                window.incrementGameVersion();
-            }
             return { success: true, message: 'Compte créé avec succès' };
         } else {
             console.error(`❌ Erreur: Le compte n'a pas pu être sauvegardé!`);
@@ -204,10 +200,6 @@ class AccountSystem {
         this.saveAccounts();
         this.saveCurrentSession();
         console.log(`✅ Connexion réussie: ${pseudo}`);
-        // Incrémenter la version du jeu à la connexion
-        if (window.incrementGameVersion) {
-            window.incrementGameVersion();
-        }
         return { success: true, message: 'Connexion réussie' };
     }
 
@@ -252,10 +244,6 @@ class AccountSystem {
         if (score > user.bestScore) {
             user.bestScore = score;
             this.saveAccounts(); // Sauvegarde IMMÉDIATE
-            // Incrémenter la version quand un nouveau record est battu
-            if (window.incrementGameVersion) {
-                window.incrementGameVersion();
-            }
             return true;
         }
         return false;
