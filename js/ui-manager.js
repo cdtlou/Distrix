@@ -170,18 +170,16 @@ class UIManager {
 
         document.getElementById('lobbyUsername').textContent = user.pseudo;
         document.getElementById('lobbyLevel').textContent = user.level;
-        // Calculer l'XP requis pour le niveau suivant
-        const currentLevelXp = XpSystem.getXpRequiredForLevel(user.level);
-        const nextLevelXp = XpSystem.getXpRequiredForLevel(user.level + 1);
-        const xpInLevel = user.xp - currentLevelXp;
-        const xpRequiredForLevel = nextLevelXp - currentLevelXp;
-
-        // Afficher l'XP relative au niveau courant (progression), pas le total global
-        document.getElementById('lobbyXP').textContent = xpInLevel;
-        document.getElementById('lobbyXPRequired').textContent = xpRequiredForLevel;
+        
+        // Obtenir la progression XP pour le prochain niveau
+        const xpProgress = XpSystem.getXpProgressForLevel(user.xp);
+        
+        // Afficher: XP actuel jusqu'au prochain palier / XP total nécessaire
+        document.getElementById('lobbyXP').textContent = xpProgress.current;
+        document.getElementById('lobbyXPRequired').textContent = xpProgress.required;
 
         // Barre de progression (s'assurer de ne pas diviser par 0)
-        const percentage = xpRequiredForLevel > 0 ? (xpInLevel / xpRequiredForLevel) * 100 : 0;
+        const percentage = xpProgress.percentage;
         document.getElementById('lobbyXPFill').style.width = Math.max(0, Math.min(100, percentage)) + '%';
 
         // Record
