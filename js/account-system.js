@@ -63,7 +63,110 @@ class AccountSystem {
                 this.accounts = {};
                 this.currentUser = null;
             }
+            
+            // Après avoir chargé les comptes, migrer les anciens pour être compatibles
+            this.migrateOldAccounts();
         });
+    }
+
+    // ============ MIGRATION DES ANCIENS COMPTES ============
+    migrateOldAccounts() {
+        let hasMigrated = false;
+        const migrationLog = [];
+
+        for (const pseudo in this.accounts) {
+            const account = this.accounts[pseudo];
+            let accountChanged = false;
+
+            // Vérifier si c'est un ancien compte (pas de version)
+            if (!account.version) {
+                account.version = 1;
+                accountChanged = true;
+                migrationLog.push(`➡️ ${pseudo}: Ajout version`);
+            }
+
+            // Recalculer le niveau selon le nouvel XP system (0→75000 sur 13 niveaux)
+            if (window.XpSystem) {
+                const newLevel = window.XpSystem.getLevelFromXP(account.xp);
+                if (newLevel !== account.level) {
+                    migrationLog.push(`➡️ ${pseudo}: Niveau ${account.level} → ${newLevel} (${account.xp} XP)`);
+                    account.level = newLevel;
+                    accountChanged = true;
+                }
+            }
+
+            // Vérifier et mettre à jour ownedItems
+            if (!account.ownedItems) {
+                account.ownedItems = { skins: [0], musics: [0] };
+                accountChanged = true;
+                migrationLog.push(`➡️ ${pseudo}: Ajout ownedItems structure`);
+            }
+
+            // Vérifier les skins et musics
+            if (account.ownedItems.skins && !Array.isArray(account.ownedItems.skins)) {
+                account.ownedItems.skins = [0];
+                accountChanged = true;
+                migrationLog.push(`➡️ ${pseudo}: Réparation skins array`);
+            }
+
+            if (account.ownedItems.musics && !Array.isArray(account.ownedItems.musics)) {
+                account.ownedItems.musics = [0];
+                accountChanged = true;
+                migrationLog.push(`➡️ ${pseudo}: Réparation musics array`);
+            }
+
+            // S'assurer qu'il y a toujours au moins l'item par défaut
+            if (!account.ownedItems.skins.includes(0)) {
+                account.ownedItems.skins.push(0);
+                accountChanged = true;
+                migrationLog.push(`➡️ ${pseudo}: Ajout skin par défaut`);
+            }
+
+            if (!account.ownedItems.musics.includes(0)) {
+                account.ownedItems.musics.push(0);
+                accountChanged = true;
+                migrationLog.push(`➡️ ${pseudo}: Ajout musique par défaut`);
+            }
+
+            // Vérifier que equippedSkin/Music existent et sont valides
+            if (account.equippedSkin === undefined) {
+                account.equippedSkin = 0;
+                accountChanged = true;
+                migrationLog.push(`➡️ ${pseudo}: Ajout equippedSkin par défaut`);
+            }
+
+            if (account.equippedMusic === undefined) {
+                account.equippedMusic = 0;
+                accountChanged = true;
+                migrationLog.push(`➡️ ${pseudo}: Ajout equippedMusic par défaut`);
+            }
+
+            // Vérifier que les items équipés sont bien possédés
+            if (account.ownedItems.skins && !account.ownedItems.skins.includes(account.equippedSkin)) {
+                account.equippedSkin = 0;
+                accountChanged = true;
+                migrationLog.push(`➡️ ${pseudo}: Reset equippedSkin à défaut (pas possédé)`);
+            }
+
+            if (account.ownedItems.musics && !account.ownedItems.musics.includes(account.equippedMusic)) {
+                account.equippedMusic = 0;
+                accountChanged = true;
+                migrationLog.push(`➡️ ${pseudo}: Reset equippedMusic à défaut (pas possédé)`);
+            }
+
+            if (accountChanged) {
+                hasMigrated = true;
+            }
+        }
+
+        if (hasMigrated) {
+            console.log('🔄 Migration des anciens comptes:');
+            migrationLog.forEach(log => console.log(log));
+            this.saveAccounts();
+            console.log('✅ Migration complétée et sauvegardée');
+        } else {
+            console.log('ℹ️ Aucune migration nécessaire - tous les comptes sont à jour');
+        }
     }
 
     // Charger depuis IndexedDB
