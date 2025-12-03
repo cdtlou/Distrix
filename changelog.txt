@@ -1,3 +1,10 @@
+v0.02 - Système de versioning et changelog
+- Version display dans le lobby (clickable)
+- Changelog disponible au click
+- Script automatique de bump version (bump-version.ps1)
+- Force update de tous les anciens comptes
+- Migration robuste avec logs détaillés
+
 v0.01 - Version initiale
 - Système de comptes avec sauvegarde multiple
 - Progression 13 niveaux (0 → 75000 XP)
