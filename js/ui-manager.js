@@ -68,6 +68,13 @@ class UIManager {
         // CASIER PAGE
         document.getElementById('closeCasierBtn').addEventListener('click', () => this.showPage('lobbyPage'));
 
+        // VERSION DISPLAY (clicker pour voir le changelog)
+        const versionDisplay = document.getElementById('versionDisplay');
+        if (versionDisplay) {
+            versionDisplay.style.cursor = 'pointer';
+            versionDisplay.addEventListener('click', () => this.showChangelog());
+        }
+
         // GAME PAGE
         document.getElementById('pauseBtn').addEventListener('click', () => this.toggleGamePause());
         document.getElementById('exitGameBtn').addEventListener('click', () => this.exitGame());
@@ -640,6 +647,75 @@ class UIManager {
     // so existing initialization calls won't cause errors.
     setupBackupEventListeners() {
         return; // intentionally empty
+    }
+
+    // ============ AFFICHAGE DU CHANGELOG ============
+    showChangelog() {
+        const changelog = window.appChangelog || 'Aucun changelog disponible';
+        const version = window.appVersion || '0.01';
+        
+        // Créer un popup avec le changelog
+        const modal = document.createElement('div');
+        modal.id = 'changelogModal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        `;
+        
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: linear-gradient(135deg, #1a1f3a 0%, #2d2156 100%);
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 600px;
+            max-height: 70vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        `;
+        
+        content.innerHTML = `
+            <div style="text-align: center; margin-bottom: 15px;">
+                <h2 style="color: #667eea; margin-bottom: 5px;">📝 Changelog</h2>
+                <p style="color: #999; font-size: 14px;">Version ${version}</p>
+            </div>
+            <div style="white-space: pre-line; font-size: 13px; line-height: 1.6; color: #ddd; font-family: monospace;">
+                ${changelog.split('\n').map(line => {
+                    if (line.startsWith('v')) {
+                        return `<span style="color: #667eea; font-weight: bold;">${line}</span>`;
+                    } else if (line.startsWith('-')) {
+                        return `<span style="color: #90ee90;">├─ ${line.substring(1)}</span>`;
+                    }
+                    return line;
+                }).join('\n')}
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="closeChangelogBtn" class="btn btn-primary" style="padding: 10px 25px;">Fermer</button>
+            </div>
+        `;
+        
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+        
+        // Fermer le modal
+        document.getElementById('closeChangelogBtn').addEventListener('click', () => {
+            modal.remove();
+        });
+        
+        // Fermer en cliquant sur le fond
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
     }
 }
 

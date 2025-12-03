@@ -1,5 +1,6 @@
 // ============ SYSTÈME DE VERSION ============
 let appVersion = '0.01'; // Version par défaut
+let appChangelog = ''; // Changelog par défaut
 
 // Charger la version depuis le fichier version.txt
 fetch('version.txt')
@@ -19,8 +20,21 @@ fetch('version.txt')
         console.log(`📦 Utilisation de la version par défaut: ${appVersion}`);
     });
 
-// Exporter la version globalement
+// Charger le changelog depuis le fichier changelog.txt
+fetch('changelog.txt')
+    .then(response => response.text())
+    .then(text => {
+        appChangelog = text.trim();
+        console.log(`📝 Changelog chargé`);
+    })
+    .catch(error => {
+        console.warn('⚠️ Impossible de charger le changelog:', error);
+        appChangelog = 'Aucun changelog disponible';
+    });
+
+// Exporter les variables globalement
 window.appVersion = appVersion;
+window.appChangelog = appChangelog;
 
 // ============ INITIALISATION PRINCIPALE ============
 document.addEventListener('DOMContentLoaded', () => {

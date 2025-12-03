@@ -1,0 +1,9 @@
+v0.01 - Version initiale
+- Système de comptes avec sauvegarde multiple
+- Progression 13 niveaux (0 → 75000 XP)
+- 13 skins débloquables
+- 13 musiques débloquables
+- Ligne complète +10 XP bonus
+- Affichage XP exact requis par niveau
+- Système de migration pour anciens comptes
+- Version display dans le lobby
