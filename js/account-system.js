@@ -1,10 +1,14 @@
 // ============ SYSTÈME DE COMPTES AVEC SYNCHRONISATION SERVEUR ============
 class AccountSystem {
     constructor() {
-        this.accounts = this.loadAccounts();
-        this.currentUser = this.loadCurrentSession();
+        this.accounts = {};
+        this.currentUser = null;
         // URL du serveur de synchronisation (par défaut en local)
         this.serverUrl = 'http://localhost:3000';
+        
+        // Charger les comptes depuis localStorage, backup, ou IndexedDB
+        this.initializeStorage();
+        
         // Sauvegarde automatique toutes les 5 secondes
         this.startAutoSave();
         // Synchronisation entre onglets/fenêtres (même PC/mobile)
@@ -13,16 +17,119 @@ class AccountSystem {
         this.syncWithServer();
     }
 
+    // Initialiser le stockage avec fallback en cas d'erreur
+    initializeStorage() {
+        // D'abord essayer le localStorage principal
+        const mainData = localStorage.getItem('tetrisAccounts');
+        if (mainData) {
+            try {
+                this.accounts = JSON.parse(mainData);
+                this.currentUser = localStorage.getItem('tetrisCurrentUser');
+                console.log('✅ Comptes chargés depuis localStorage');
+                return;
+            } catch (error) {
+                console.warn('⚠️ Erreur parse localStorage, essai du backup...');
+            }
+        }
+        
+        // Essayer le backup localStorage
+        const backupData = localStorage.getItem('tetrisAccountsBackup');
+        if (backupData) {
+            try {
+                this.accounts = JSON.parse(backupData);
+                this.currentUser = localStorage.getItem('tetrisCurrentUser');
+                // Restaurer le principal depuis le backup
+                localStorage.setItem('tetrisAccounts', backupData);
+                console.log('✅ Comptes restaurés depuis le backup localStorage');
+                return;
+            } catch (error) {
+                console.warn('⚠️ Erreur parse backup localStorage...');
+            }
+        }
+        
+        // Essayer IndexedDB
+        this.loadFromIndexedDB().then(data => {
+            if (data) {
+                this.accounts = data.accounts || {};
+                this.currentUser = data.currentUser || null;
+                // Resauvegarder dans localStorage
+                localStorage.setItem('tetrisAccounts', JSON.stringify(this.accounts));
+                if (this.currentUser) {
+                    localStorage.setItem('tetrisCurrentUser', this.currentUser);
+                }
+                console.log('✅ Comptes restaurés depuis IndexedDB');
+            } else {
+                console.log('ℹ️ Aucunes données existantes trouvées');
+                this.accounts = {};
+                this.currentUser = null;
+            }
+        });
+    }
+
+    // Charger depuis IndexedDB
+    async loadFromIndexedDB() {
+        return new Promise((resolve) => {
+            try {
+                const request = indexedDB.open('TetrisDB', 1);
+                
+                request.onerror = () => {
+                    console.warn('⚠️ IndexedDB non disponible');
+                    resolve(null);
+                };
+                
+                request.onsuccess = (event) => {
+                    const db = event.target.result;
+                    const transaction = db.transaction(['accounts'], 'readonly');
+                    const store = transaction.objectStore('accounts');
+                    const getRequest = store.get('data');
+                    
+                    getRequest.onsuccess = () => {
+                        resolve(getRequest.result || null);
+                    };
+                    getRequest.onerror = () => resolve(null);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('accounts')) {
+                        db.createObjectStore('accounts');
+                    }
+                };
+            } catch (error) {
+                console.warn('⚠️ Erreur IndexedDB:', error);
+                resolve(null);
+            }
+        });
+    }
+
+    // Sauvegarder dans IndexedDB
+    async saveToIndexedDB() {
+        try {
+            const request = indexedDB.open('TetrisDB', 1);
+            
+            request.onsuccess = (event) => {
+                const db = event.target.result;
+                const transaction = db.transaction(['accounts'], 'readwrite');
+                const store = transaction.objectStore('accounts');
+                store.put({
+                    accounts: this.accounts,
+                    currentUser: this.currentUser,
+                    timestamp: new Date().toISOString()
+                }, 'data');
+            };
+        } catch (error) {
+            console.warn('⚠️ Erreur sauvegarde IndexedDB:', error);
+        }
+    }
+
     // (Comportement simple) pas de détection automatique complexe — utiliser localhost:3000 par défaut
 
     loadAccounts() {
-        const data = localStorage.getItem('tetrisAccounts');
-        return data ? JSON.parse(data) : {};
+        return this.accounts;
     }
 
     loadCurrentSession() {
-        const session = localStorage.getItem('tetrisCurrentUser');
-        return session ? session : null;
+        return this.currentUser;
     }
 
     saveCurrentSession() {
@@ -34,26 +141,47 @@ class AccountSystem {
     }
 
     saveAccounts() {
-        // TRIPLE SAUVEGARDE: localStorage principal + backup localStorage + serveur
+        // QUADRUPLE SAUVEGARDE: localStorage principal + backup localStorage + sessionStorage + IndexedDB
         const dataString = JSON.stringify(this.accounts);
         
         // Sauvegarder dans localStorage (principal)
-        localStorage.setItem('tetrisAccounts', dataString);
-        localStorage.setItem('tetrisLastSave', new Date().toISOString());
+        try {
+            localStorage.setItem('tetrisAccounts', dataString);
+            localStorage.setItem('tetrisLastSave', new Date().toISOString());
+            console.log('✅ Sauvegarde localStorage principale réussie');
+        } catch (error) {
+            console.error('❌ Erreur sauvegarde localStorage:', error);
+        }
         
         // Sauvegarder un backup dans localStorage aussi (redondance)
-        localStorage.setItem('tetrisAccountsBackup', dataString);
+        try {
+            localStorage.setItem('tetrisAccountsBackup', dataString);
+            console.log('✅ Sauvegarde localStorage backup réussie');
+        } catch (error) {
+            console.error('❌ Erreur sauvegarde backup localStorage:', error);
+        }
         
         // Sauvegarder aussi dans sessionStorage pour la session actuelle
-        sessionStorage.setItem('tetrisAccountsSession', dataString);
+        try {
+            sessionStorage.setItem('tetrisAccountsSession', dataString);
+        } catch (error) {
+            console.error('❌ Erreur sauvegarde sessionStorage:', error);
+        }
+        
+        // Sauvegarder dans IndexedDB pour persistance maximale
+        this.saveToIndexedDB();
         
         // Vérifier que la sauvegarde s'est bien faite localement
-        const verify = localStorage.getItem('tetrisAccounts');
-        if (verify !== dataString) {
-            console.error('❌ ERREUR: La sauvegarde locale n\'a pas fonctionné!');
-            alert('⚠️ ATTENTION: Erreur lors de la sauvegarde des données!');
-        } else {
-            console.log('✅ Sauvegarde locale réussie - ' + Object.keys(this.accounts).length + ' compte(s)');
+        try {
+            const verify = localStorage.getItem('tetrisAccounts');
+            if (verify !== dataString) {
+                console.error('❌ ERREUR: La sauvegarde locale n\'a pas fonctionné!');
+                alert('⚠️ ATTENTION: Erreur lors de la sauvegarde des données!');
+            } else {
+                console.log('✅ VÉRIFICATION OK - Sauvegarde confirmée - ' + Object.keys(this.accounts).length + ' compte(s)');
+            }
+        } catch (error) {
+            console.error('❌ Erreur lors de la vérification:', error);
         }
         
         // Synchroniser avec le serveur en arrière-plan
@@ -166,19 +294,52 @@ class AccountSystem {
             lastLogin: new Date().toISOString()
         };
 
+        // Sauvegarder immédiatement et vérifier
         this.saveAccounts();
         
-        // Vérifier que le compte a bien été créé
-        if (this.accounts[pseudo]) {
-            console.log(`✅ Compte "${pseudo}" créé et sauvegardé`);
-            return { success: true, message: 'Compte créé avec succès' };
+        // DOUBLE VÉRIFICATION: vérifier dans localStorage ET dans memory
+        const savedInMemory = this.accounts[pseudo] ? true : false;
+        const savedInLocalStorage = localStorage.getItem('tetrisAccounts');
+        const savedData = savedInLocalStorage ? JSON.parse(savedInLocalStorage) : {};
+        const savedInStorage = savedData[pseudo] ? true : false;
+        
+        if (savedInMemory && savedInStorage) {
+            console.log(`✅✅ Compte "${pseudo}" créé et VÉRIFIÉ dans la mémoire ET localStorage`);
+            return { success: true, message: `✅ Compte créé et sauvegardé` };
+        } else if (savedInMemory) {
+            console.warn(`⚠️ Compte "${pseudo}" en mémoire mais NON trouvé dans localStorage!`);
+            return { success: false, message: 'ERREUR: Impossible de sauvegarder le compte' };
         } else {
-            console.error(`❌ Erreur: Le compte n'a pas pu être sauvegardé!`);
+            console.error(`❌ Erreur: Le compte n'a pas pu être créé!`);
             return { success: false, message: 'Erreur lors de la création du compte' };
         }
     }
 
     login(pseudo, code) {
+        // VÉRIFIER que le compte existe dans localStorage ET dans la mémoire
+        const accountInMemory = this.accounts[pseudo];
+        
+        // Si pas en mémoire, essayer de recharger depuis localStorage
+        if (!accountInMemory) {
+            const storageData = localStorage.getItem('tetrisAccounts');
+            if (storageData) {
+                try {
+                    const allAccounts = JSON.parse(storageData);
+                    if (allAccounts[pseudo]) {
+                        this.accounts = allAccounts;
+                        console.log('🔄 Compte rechargé depuis localStorage');
+                    } else {
+                        return { success: false, message: 'Pseudo non trouvé' };
+                    }
+                } catch (error) {
+                    console.error('❌ Erreur lors du rechargement:', error);
+                    return { success: false, message: 'Pseudo non trouvé' };
+                }
+            } else {
+                return { success: false, message: 'Pseudo non trouvé' };
+            }
+        }
+        
         const account = this.accounts[pseudo];
         
         if (!account) {
@@ -199,7 +360,7 @@ class AccountSystem {
         
         this.saveAccounts();
         this.saveCurrentSession();
-        console.log(`✅ Connexion réussie: ${pseudo}`);
+        console.log(`✅✅ Connexion réussie: ${pseudo} - Compte VÉRIFIÉ`);
         return { success: true, message: 'Connexion réussie' };
     }
 
@@ -460,6 +621,60 @@ class AccountSystem {
             lastSave: localStorage.getItem('tetrisLastSave') || 'Jamais',
             storageUsage: new Blob([JSON.stringify(this.accounts)]).size + ' bytes'
         };
+    }
+    
+    // Fonction de DEBUG: vérifier l'état complet de la sauvegarde
+    debugVerifyStorage() {
+        console.log('═════════════════════════════════════════');
+        console.log('🔍 VÉRIFICATION COMPLÈTE DU STOCKAGE');
+        console.log('═════════════════════════════════════════');
+        
+        // Vérifier localStorage principal
+        const localStorageData = localStorage.getItem('tetrisAccounts');
+        console.log('📦 localStorage "tetrisAccounts":', localStorageData ? '✅ EXISTE' : '❌ VIDE');
+        if (localStorageData) {
+            try {
+                const parsed = JSON.parse(localStorageData);
+                console.log('   └─ Comptes trouvés:', Object.keys(parsed));
+            } catch (e) {
+                console.error('   └─ ❌ ERREUR PARSE:', e.message);
+            }
+        }
+        
+        // Vérifier localStorage backup
+        const backupData = localStorage.getItem('tetrisAccountsBackup');
+        console.log('📦 localStorage "tetrisAccountsBackup":', backupData ? '✅ EXISTE' : '❌ VIDE');
+        if (backupData) {
+            try {
+                const parsed = JSON.parse(backupData);
+                console.log('   └─ Comptes trouvés:', Object.keys(parsed));
+            } catch (e) {
+                console.error('   └─ ❌ ERREUR PARSE:', e.message);
+            }
+        }
+        
+        // Vérifier sessionStorage
+        const sessionData = sessionStorage.getItem('tetrisAccountsSession');
+        console.log('📦 sessionStorage "tetrisAccountsSession":', sessionData ? '✅ EXISTE' : '❌ VIDE');
+        
+        // Vérifier mémoire
+        console.log('💾 Comptes en mémoire:', Object.keys(this.accounts));
+        console.log('👤 Utilisateur actuel:', this.currentUser || '(aucun)');
+        
+        // Vérifier IndexedDB
+        console.log('🗄️ IndexedDB: Vérification en cours...');
+        const dbRequest = indexedDB.open('TetrisDB', 1);
+        dbRequest.onsuccess = (event) => {
+            const db = event.target.result;
+            const transaction = db.transaction(['accounts'], 'readonly');
+            const store = transaction.objectStore('accounts');
+            const getRequest = store.get('data');
+            getRequest.onsuccess = () => {
+                console.log('🗄️ IndexedDB data:', getRequest.result ? '✅ EXISTE' : '❌ VIDE');
+            };
+        };
+        
+        console.log('═════════════════════════════════════════');
     }
 }
 

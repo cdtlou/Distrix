@@ -1,5 +1,9 @@
 // ============ INITIALISATION PRINCIPALE ============
 document.addEventListener('DOMContentLoaded', () => {
+    // DEBUG: Vérifier l'état complet du stockage au démarrage
+    console.log('🚀 Démarrage - Vérification du stockage...');
+    accountSystem.debugVerifyStorage();
+    
     // VÉRIFICATION DE SAUVEGARDES
     // Si les comptes principaux sont vides, essayer de récupérer depuis le backup
     if (Object.keys(accountSystem.accounts).length === 0) {
