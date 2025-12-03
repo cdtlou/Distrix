@@ -1,4 +1,49 @@
 // ============ INITIALISATION PRINCIPALE ============
+
+// ============ SYSTÈME DE VERSIONING AUTOMATIQUE ============
+class VersionManager {
+    constructor() {
+        this.versionKey = 'tetrisGameVersion';
+        this.version = this.loadVersion();
+        this.setupAutoIncrement();
+        this.displayVersion();
+    }
+
+    loadVersion() {
+        const stored = localStorage.getItem(this.versionKey);
+        return stored ? parseFloat(stored) : 0.001;
+    }
+
+    saveVersion(v) {
+        localStorage.setItem(this.versionKey, v.toString());
+        this.version = v;
+    }
+
+    increment() {
+        const newVersion = parseFloat((this.version + 0.001).toFixed(3));
+        this.saveVersion(newVersion);
+        this.displayVersion();
+        console.log(`📦 Version mise à jour: ${newVersion}`);
+    }
+
+    displayVersion() {
+        const badge = document.getElementById('versionBadge');
+        if (badge) {
+            badge.textContent = `Mise à jour ${this.version.toFixed(3)}`;
+        }
+    }
+
+    setupAutoIncrement() {
+        // Incrémenter la version à chaque changement utilisateur (login, logout, boutique, etc.)
+        window.addEventListener('userAction', () => {
+            this.increment();
+        });
+    }
+}
+
+// Initialiser le système de versioning
+const versionManager = new VersionManager();
+
 document.addEventListener('DOMContentLoaded', () => {
     // VÉRIFICATION DE SAUVEGARDES
     // Si les comptes principaux sont vides, essayer de récupérer depuis le backup
