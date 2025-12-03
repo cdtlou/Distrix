@@ -1,0 +1,158 @@
+<!-- 
+    🔐 TEST GITHUB BACKUP SYSTEM
+    Ouvre cette page dans la console pour tester le système
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test GitHub Backup</title>
+    <style>
+        body {
+            background: #0a0e27;
+            color: #e0e0e0;
+            font-family: Courier, monospace;
+            padding: 20px;
+            line-height: 1.8;
+        }
+        .test-box {
+            background: rgba(0,0,0,0.5);
+            border: 2px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        .test-title {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .code {
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-left: 4px solid #667eea;
+            overflow-x: auto;
+        }
+        .result {
+            color: #4CAF50;
+            margin-top: 10px;
+        }
+        .warning {
+            color: #FF9800;
+        }
+        h1 {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Test Système GitHub Backup</h1>
+    
+    <div class="test-box">
+        <div class="test-title">1️⃣ Vérifier que GitHub Backup est chargé</div>
+        <div class="code">
+            console.log('githubBackup:', window.githubBackup);<br>
+            console.log('githubUI:', window.githubUI);
+        </div>
+        <div class="warning">Résultat attendu: Deux objets de classe</div>
+    </div>
+
+    <div class="test-box">
+        <div class="test-title">2️⃣ Vérifier le statut du token</div>
+        <div class="code">
+            console.log('Token configuré?', window.githubBackup.isConfigured());<br>
+            console.log('Repo:', window.githubBackup.repoOwner + '/' + window.githubBackup.repoName);
+        </div>
+        <div class="warning">Résultat attendu: false (pas encore configuré) → cdtlou/Distrix</div>
+    </div>
+
+    <div class="test-box">
+        <div class="test-title">3️⃣ Créer un compte de test</div>
+        <div class="code">
+            // Le compte sera sauvegardé automatiquement<br>
+            accountSystem.createAccount('TestUser', 'password123');
+        </div>
+        <div class="warning">Résultat attendu: Compte créé + sauvegardé en local</div>
+    </div>
+
+    <div class="test-box">
+        <div class="test-title">4️⃣ Configurer le token GitHub (REMPLACER par ton vrai token)</div>
+        <div class="code">
+            window.githubBackup.setGitHubToken('ghp_VOTRE_TOKEN_ICI');
+        </div>
+        <div class="warning">⚠️ IMPORTANT: Créez un token sur <a href="https://github.com/settings/tokens" style="color: #667eea;">https://github.com/settings/tokens</a></div>
+    </div>
+
+    <div class="test-box">
+        <div class="test-title">5️⃣ Tester la sauvegarde GitHub</div>
+        <div class="code">
+            await window.githubBackup.backupAccountsToGitHub(window.accountSystem.accounts);
+        </div>
+        <div class="warning">Résultat attendu: ✅ dans la console</div>
+    </div>
+
+    <div class="test-box">
+        <div class="test-title">6️⃣ Vérifier le backup sur GitHub</div>
+        <div class="code">
+            Allez sur votre repo:<br>
+            https://github.com/cdtlou/Distrix/blob/main/backups/accounts-backup.json
+        </div>
+        <div class="warning">Vous devriez voir le fichier JSON avec vos comptes!</div>
+    </div>
+
+    <div class="test-box">
+        <div class="test-title">7️⃣ Ouvrir l'interface GitHub</div>
+        <div class="code">
+            window.githubUI.openModal();
+        </div>
+        <div class="warning">Résultat attendu: Modal GitHub s'ouvre dans le jeu</div>
+    </div>
+
+    <div class="test-box">
+        <div class="test-title">8️⃣ Tester la restauration</div>
+        <div class="code">
+            const restored = await window.githubBackup.restoreAccountsFromGitHub();<br>
+            console.log('Comptes restaurés:', restored);
+        </div>
+        <div class="warning">Résultat attendu: Vos comptes affichés dans la console</div>
+    </div>
+
+    <hr style="border-color: #667eea; margin: 40px 0;">
+
+    <h2 style="color: #667eea;">📋 Résumé des commandes console:</h2>
+    
+    <pre style="background: rgba(0,0,0,0.7); padding: 20px; border-radius: 10px; overflow-x: auto;">
+// 1. Vérifier
+console.log(window.githubBackup);
+
+// 2. Configurer token
+window.githubBackup.setGitHubToken('ghp_votre_token_ici');
+
+// 3. Sauvegarder
+await window.githubBackup.backupAccountsToGitHub(window.accountSystem.accounts);
+
+// 4. Restaurer
+const accounts = await window.githubBackup.restoreAccountsFromGitHub();
+
+// 5. Voir l'historique
+const history = await window.githubBackup.getBackupHistory();
+console.log(history);
+
+// 6. Voir le dernier backup
+const lastBackup = await window.githubBackup.getLastBackup();
+console.log(lastBackup);
+
+// 7. Ouvrir le modal UI
+window.githubUI.openModal();
+    </pre>
+
+    <script src="js/github-backup.js"></script>
+    <script src="js/github-ui.js"></script>
+    <script src="js/account-system.js"></script>
+    
+    <script>
+        console.log('✅ Test GitHub Backup chargé!');
+        console.log('Utilisez les commandes ci-dessus dans la console (F12)');
+    </script>
+</body>
+</html>
