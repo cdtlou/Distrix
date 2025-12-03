@@ -13,17 +13,17 @@ const ShopSystem = {
     musics: [
         { id: 0, name: 'Tetris Original', level: 1, url: 'assets/musique/tetris_original_meloboom.mp3', emoji: '🎵' },
         { id: 1, name: 'Tetris Cheerful', level: 5, url: 'assets/musique/tetris_cheerful_meloboom.mp3', emoji: '🎶' },
-        { id: 2, name: 'Tetris — Thème 1', level: 10, url: 'assets/musique/tetris_theme1.mp3', emoji: '🎵' },
-        { id: 3, name: 'Tetris — Thème 2', level: 15, url: 'assets/musique/tetris_theme2.mp3', emoji: '🎶' },
-        { id: 4, name: 'T E T R I S', level: 20, url: 'assets/musique/tetris_t_e_t_r_i_s.mp3', emoji: '🎵' },
-        { id: 5, name: 'Backtracking', level: 5, url: 'assets/musique/backtracking-tetris meloboom.mp3', emoji: '🎸' },
-        { id: 6, name: 'Porta Rap', level: 10, url: 'assets/musique/porta-tetris-rap meloboom.mp3', emoji: '🎤' },
-        { id: 7, name: 'Tetris 99 Theme', level: 15, url: 'assets/musique/tetris-99-theme meloboom.mp3', emoji: '🎮' },
-        { id: 8, name: 'Ska Version', level: 20, url: 'assets/musique/tetris-ska-version meloboom.mp3', emoji: '🎺' },
-        { id: 9, name: 'Soviet', level: 25, url: 'assets/musique/tetris-soviet meloboom.mp3', emoji: '🔴' },
-        { id: 10, name: 'Techno Remix', level: 30, url: 'assets/musique/tetris-techno-remix meloboom.mp3', emoji: '🎧' },
-        { id: 11, name: 'Tetris 2', level: 35, url: 'assets/musique/tetris2 meloboom.mp3', emoji: '🎵' },
-        { id: 12, name: 'Metal', level: 40, url: 'assets/musique/tetrismetal meloboom.mp3', emoji: '🎸' }
+        { id: 2, name: 'Backtracking', level: 10, url: 'assets/musique/backtracking-tetris meloboom.mp3', emoji: '🎸' },
+        { id: 3, name: 'Porta Rap', level: 15, url: 'assets/musique/porta-tetris-rap meloboom.mp3', emoji: '🎤' },
+        { id: 4, name: 'Tetris 99 Theme', level: 20, url: 'assets/musique/tetris-99-theme meloboom.mp3', emoji: '🎮' },
+        { id: 5, name: 'Ska Version', level: 25, url: 'assets/musique/tetris-ska-version meloboom.mp3', emoji: '🎺' },
+        { id: 6, name: 'Soviet', level: 30, url: 'assets/musique/tetris-soviet meloboom.mp3', emoji: '🔴' },
+        { id: 7, name: 'Techno Remix', level: 35, url: 'assets/musique/tetris-techno-remix meloboom.mp3', emoji: '🎧' },
+        { id: 8, name: 'Tetris 2', level: 40, url: 'assets/musique/tetris2 meloboom.mp3', emoji: '🎵' },
+        { id: 9, name: 'Metal', level: 45, url: 'assets/musique/tetrismetal meloboom.mp3', emoji: '🎸' },
+        { id: 10, name: 'Tetris — Thème 1', level: 50, url: 'assets/musique/tetris_theme1.mp3', emoji: '🎵' },
+        { id: 11, name: 'Tetris — Thème 2', level: 55, url: 'assets/musique/tetris_theme2.mp3', emoji: '🎶' },
+        { id: 12, name: 'T E T R I S', level: 60, url: 'assets/musique/tetris_t_e_t_r_i_s.mp3', emoji: '🎵' }
     ],
 
     isItemUnlocked: function(itemType, itemId, playerLevel) {

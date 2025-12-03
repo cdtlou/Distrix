@@ -1,27 +1,28 @@
 // ============ SYSTÈME XP ET NIVEAUX ============
 const XpSystem = {
     // Tableau des XP requis PAR NIVEAU pour passer au niveau suivant (niveau: xpNeeded)
+    // XP réduit de 50% pour progression plus rapide
     perLevelXp: {
-        1: 150,
-        2: 300,
-        3: 450,
-        4: 650,
-        5: 900,
-        6: 1200,
-        7: 1600,
-        8: 2000,
-        9: 2500,
-        10: 3000,
-        11: 4000,
-        12: 5500,
-        13: 7000,
-        14: 9000,
-        15: 12000,
-        16: 15000,
-        17: 20000,
-        18: 30000,
-        19: 45000,
-        20: 75000
+        1: 75,
+        2: 150,
+        3: 225,
+        4: 325,
+        5: 450,
+        6: 600,
+        7: 800,
+        8: 1000,
+        9: 1250,
+        10: 1500,
+        11: 2000,
+        12: 2750,
+        13: 3500,
+        14: 4500,
+        15: 6000,
+        16: 7500,
+        17: 10000,
+        18: 15000,
+        19: 22500,
+        20: 37500
     },
 
     // Retourne le total d'XP cumulatif requis pour atteindre `level`.
