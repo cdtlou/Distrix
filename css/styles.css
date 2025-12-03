@@ -596,7 +596,8 @@ body {
     align-items: center;
     padding: 20px;
     padding-top: 40px;
-    overflow-y: auto;
+    overflow: hidden;
+    /* Disable scrolling entirely on game page */
 }
 
 .game-container {
