@@ -47,7 +47,7 @@ class GitHubAuth {
         }
     }
 
-    // ============ ÉCHANGER LE CODE POUR UN TOKEN ============
+    // ============ ÉCHANGE LE CODE POUR UN TOKEN ============
     // C'est CRITIQUE: doit être fait côté serveur, pas en frontend!
     // Pour maintenant, on va utiliser un token manuel (passer par backend)
     async exchangeCodeForToken(code) {
@@ -66,13 +66,41 @@ class GitHubAuth {
                 this.githubUser = data.user;
                 this.isAuthenticated = true;
                 
-                console.log('✅ Connecté avec GitHub:', this.githubUser.login);
+                console.log('✅ Connecté avec GitHub:', this.githubUser.email);
+                
+                // TRÈS IMPORTANT: Créer le compte avec l'email GitHub
+                // Créer un compte automatique si n'existe pas
+                if (window.accountSystem && this.githubUser.email) {
+                    const email = this.githubUser.email;
+                    
+                    // Vérifier si le compte existe déjà
+                    if (!window.accountSystem.accounts[email]) {
+                        // Créer un nouveau compte avec l'email comme pseudo
+                        window.accountSystem.createAccount(email, email);
+                        console.log(`✅ Compte créé avec email: ${email}`);
+                    } else {
+                        console.log(`ℹ️ Compte existant trouvé: ${email}`);
+                    }
+                    
+                    // Se connecter avec l'email
+                    const loginResult = window.accountSystem.login(email, email);
+                    if (loginResult.success) {
+                        console.log(`✅ Connecté en tant que: ${email}`);
+                    }
+                }
                 
                 // Récupérer les comptes depuis GitHub
                 await this.loadAccountsFromGitHub();
                 
                 // Nettoyer l'URL
                 window.history.replaceState({}, document.title, window.location.pathname);
+                
+                // Rediriger vers le lobby
+                setTimeout(() => {
+                    if (window.uiManager) {
+                        window.uiManager.showPage('lobbyPage');
+                    }
+                }, 500);
             }
         } catch (error) {
             console.error('❌ Erreur OAuth:', error);
@@ -91,6 +119,7 @@ class GitHubAuth {
             const backupData = {
                 timestamp: new Date().toISOString(),
                 version: window.appVersion || '0.03',
+                userEmail: this.githubUser.email,  // Identifier par email
                 accountCount: Object.keys(accounts).length,
                 accounts: accounts
             };
@@ -136,7 +165,7 @@ class GitHubAuth {
                         'Accept': 'application/vnd.github.v3+json'
                     },
                     body: JSON.stringify({
-                        message: `Auto-backup: ${backupData.accountCount} compte(s) - ${new Date().toLocaleString()}`,
+                        message: `Auto-backup (${this.githubUser.email}): ${backupData.accountCount} compte(s) - ${new Date().toLocaleString()}`,
                         content: content,
                         sha: sha
                     })
