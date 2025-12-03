@@ -41,14 +41,14 @@ body {
 
 /* ============ BOUTONS ============ */
 .btn {
-    padding: 16px 32px;
+    padding: 12px 24px;
     border: none;
     border-radius: 10px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     font-weight: bold;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 16px;
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -596,14 +596,13 @@ body {
     align-items: center;
     padding: 20px;
     padding-top: 40px;
-    overflow: hidden;
-    /* Disable scrolling entirely on game page */
+    overflow-y: auto;
 }
 
 .game-container {
     display: flex;
-    gap: 40px;
-    max-width: 1000px;
+    gap: 30px;
+    max-width: 900px;
     width: 100%;
 }
 
@@ -641,12 +640,12 @@ body {
 }
 
 .control-btn {
-    padding: 20px;
+    padding: 15px;
     background: #667eea;
     border: none;
     border-radius: 8px;
     color: white;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -661,18 +660,18 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
 }
 
 .game-info {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
 }
 
 .info-box {
     background: rgba(102, 126, 234, 0.1);
-    padding: 35px;
+    padding: 20px;
     border-radius: 10px;
     border-left: 4px solid #667eea;
     text-align: center;
@@ -680,19 +679,19 @@ body {
 
 .info-box h3 {
     color: #667eea;
-    margin-bottom: 15px;
-    font-size: 20px;
+    margin-bottom: 10px;
+    font-size: 14px;
 }
 
 .info-box p {
-    font-size: 56px;
+    font-size: 32px;
     font-weight: bold;
     color: #ffd700;
 }
 
 .next-piece-box {
     background: rgba(102, 126, 234, 0.1);
-    padding: 30px;
+    padding: 15px;
     border-radius: 10px;
     border-left: 4px solid #667eea;
     text-align: center;
@@ -700,8 +699,8 @@ body {
 
 .next-piece-box h3 {
     color: #667eea;
-    margin-bottom: 15px;
-    font-size: 20px;
+    margin-bottom: 10px;
+    font-size: 14px;
 }
 
 #nextPieceCanvas {
@@ -714,10 +713,10 @@ body {
 
 .game-buttons {
     display: flex;
-    gap: 20px;
+    gap: 15px;
     justify-content: center;
     width: 100%;
-    margin-top: 30px;
+    margin-top: 20px;
 }
 
 /* ============ RESPONSIVE ============ */
@@ -831,37 +830,18 @@ body {
 
     /* Agrandir les contrôles tactiles pour les doigts */
     .mobile-controls {
-            display: none;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-        /* Make mobile controls a fixed bottom bar for easier access */
-        .mobile-controls {
-            position: fixed;
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(100% - 24px);
-            max-width: 640px;
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 14px;
-            padding: 6px;
-            z-index: 9999;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.45);
-            background: rgba(10,14,39,0.7);
-            border-radius: 14px;
-            backdrop-filter: blur(6px);
-            touch-action: manipulation;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-top: 12px;
     }
 
     .control-btn {
-        padding: 32px;
-        font-size: 32px;
+        padding: 20px;
+        font-size: 22px;
         border-radius: 12px;
-        min-width: 80px;
-        min-height: 80px;
+        min-width: 56px;
+        min-height: 56px;
         box-shadow: 0 6px 12px rgba(0,0,0,0.25);
     }
 
@@ -888,33 +868,33 @@ body {
     .game-mobile-sidebar {
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        width: 90px;
+        gap: 8px;
+        width: 75px;
         flex-shrink: 0;
     }
 
     .game-mobile-sidebar .info-box {
-        padding: 12px 8px;
+        padding: 8px 6px;
         margin: 0;
         border-radius: 6px;
     }
 
     .game-mobile-sidebar .info-box h3 {
-        font-size: 13px;
-        margin-bottom: 4px;
+        font-size: 10px;
+        margin-bottom: 3px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
     .game-mobile-sidebar .info-box p {
-        font-size: 18px;
+        font-size: 13px;
         margin: 0;
     }
 
     .game-mobile-sidebar .btn {
-        padding: 8px 4px;
-        font-size: 12px;
+        padding: 6px 3px;
+        font-size: 10px;
         white-space: nowrap;
         border-radius: 4px;
     }
@@ -930,17 +910,17 @@ body {
 
     .game-center-column .next-piece-box {
         width: 100%;
-        padding: 8px;
+        padding: 6px;
         border-radius: 6px;
     }
 
     .game-center-column .next-piece-box h3 {
-        font-size: 13px;
-        margin-bottom: 4px;
+        font-size: 11px;
+        margin-bottom: 3px;
     }
 
     #nextPieceCanvas {
-        max-width: 120px;
+        max-width: 90px;
         height: auto;
     }
 
@@ -952,44 +932,27 @@ body {
     }
 
     #gameCanvas {
-        max-width: 280px;
+        max-width: 240px;
         height: auto;
         touch-action: none;
     }
 
     .mobile-controls.active {
-            /* keep fixed bottom layout when active */
-            display: grid;
-            width: calc(100% - 24px);
-            max-width: 640px;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 14px;
-        }
-        /* ensure active mobile-controls stays fixed at bottom */
-        .mobile-controls.active {
-            display: grid;
-            width: 100%;
-            max-width: 280px;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            position: fixed;
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            background: rgba(10,14,39,0.7);
-            border-radius: 12px;
-            padding: 6px;
+        display: grid;
+        width: 100%;
+        max-width: 240px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
     }
 
     .control-btn {
-        padding: 18px 10px;
-        font-size: 20px;
+        padding: 15px 8px;
+        font-size: 16px;
         touch-action: manipulation;
         -webkit-user-select: none;
         user-select: none;
-        min-height: 65px;
-        min-width: 65px;
+        min-height: 50px;
+        min-width: 50px;
     }
 
     /* Cacher la barre droite en mobile */
