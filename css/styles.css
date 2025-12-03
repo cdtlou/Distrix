@@ -606,9 +606,9 @@ body {
     width: 100%;
 }
 
-/* Slight visual scale for game UI (small increase) */
+/* Slight visual scale for game UI (20% increase requested) */
 #gamePage .game-container {
-    transform: scale(1.08);
+    transform: scale(1.20);
     transform-origin: top center;
 }
 
