@@ -174,9 +174,11 @@ class UIManager {
         // Obtenir la progression XP pour le prochain niveau
         const xpProgress = XpSystem.getXpProgressForLevel(user.xp);
         
-        // Afficher: XP actuel jusqu'au prochain palier / XP total nécessaire
-        document.getElementById('lobbyXP').textContent = xpProgress.current;
-        document.getElementById('lobbyXPRequired').textContent = xpProgress.required;
+        // Afficher: XP actuel total / XP total nécessaire pour PROCHAIN niveau
+        const nextLevelXpRequired = XpSystem.getXpRequiredForLevel(xpProgress.nextLevel);
+        
+        document.getElementById('lobbyXP').textContent = user.xp;
+        document.getElementById('lobbyXPRequired').textContent = nextLevelXpRequired;
 
         // Barre de progression (s'assurer de ne pas diviser par 0)
         const percentage = xpProgress.percentage;
