@@ -2,19 +2,26 @@
 - Mobile compatibility + Auto-release system
 
 
-v0.02 - SystÃ¨me de versioning et changelog
-- Version display dans le lobby (clickable)
-- Changelog disponible au click
-- Script automatique de bump version (bump-version.ps1)
-- Force update de tous les anciens comptes
-- Migration robuste avec logs dÃ©taillÃ©s
+v0.03 - Mobile Optimization & Auto-Release System
+- Mobile responsive version display
+- Auto-release script for version bumping
+- Auto-generated changelog from commits
+- Fixed CSS for mobile screens
+- Settings button properly sized for touch
+- Version display clickable on all devices
 
-v0.01 - Version initiale
-- SystÃ¨me de comptes avec sauvegarde multiple
-- Progression 13 niveaux (0 â†’ 75000 XP)
-- 13 skins dÃ©bloquables
-- 13 musiques dÃ©bloquables
-- Ligne complÃ¨te +10 XP bonus
-- Affichage XP exact requis par niveau
-- SystÃ¨me de migration pour anciens comptes
-- Version display dans le lobby
+v0.02 - Versioning & Changelog System
+- Version display in lobby header (clickable)
+- Changelog viewer popup
+- Auto version bump script
+- Force update for all old accounts
+- Robust migration with detailed logs
+
+v0.01 - Initial Release
+- Account system with multiple backups
+- 13-level progression (0 to 75000 XP)
+- 13 unlockable skins
+- 13 unlockable music tracks
+- Line clear bonus (+10 XP per line)
+- Exact XP display per level
+- Migration system for old accounts
