@@ -617,8 +617,8 @@ body {
     background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
     justify-content: center;
     align-items: center;
-    padding: 20px;
-    padding-top: 40px;
+    padding: 30px;
+    padding-top: 60px;
     overflow: hidden;
     /* Disable scrolling entirely on game page */
 }
@@ -644,8 +644,8 @@ body {
 
 #gameCanvas {
     background: rgba(0, 0, 0, 0.5);
-    border: 3px solid #667eea;
-    border-radius: 10px;
+    border: 5px solid #667eea;
+    border-radius: 15px;
     display: block;
     width: auto;
     max-width: 100%;
@@ -655,8 +655,8 @@ body {
 .mobile-controls {
     display: none;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-top: 15px;
+    gap: 12px;
+    margin-top: 20px;
 }
 
 .mobile-controls.active {
@@ -664,12 +664,12 @@ body {
 }
 
 .control-btn {
-    padding: 20px;
+    padding: 26px;
     background: #667eea;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     color: white;
-    font-size: 24px;
+    font-size: 28px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -695,7 +695,7 @@ body {
 
 .info-box {
     background: rgba(102, 126, 234, 0.1);
-    padding: 35px;
+    padding: 40px;
     border-radius: 10px;
     border-left: 4px solid #667eea;
     text-align: center;
@@ -703,19 +703,19 @@ body {
 
 .info-box h3 {
     color: #667eea;
-    margin-bottom: 15px;
-    font-size: 20px;
+    margin-bottom: 18px;
+    font-size: 24px;
 }
 
 .info-box p {
-    font-size: 56px;
+    font-size: 64px;
     font-weight: bold;
     color: #ffd700;
 }
 
 .next-piece-box {
     background: rgba(102, 126, 234, 0.1);
-    padding: 30px;
+    padding: 35px;
     border-radius: 10px;
     border-left: 4px solid #667eea;
     text-align: center;
@@ -723,8 +723,8 @@ body {
 
 .next-piece-box h3 {
     color: #667eea;
-    margin-bottom: 15px;
-    font-size: 20px;
+    margin-bottom: 18px;
+    font-size: 24px;
 }
 
 #nextPieceCanvas {
@@ -917,8 +917,8 @@ body {
     }
 
     .game-mobile-sidebar .btn {
-        padding: 8px 4px;
-        font-size: 12px;
+        padding: 10px 5px;
+        font-size: 14px;
         white-space: nowrap;
         border-radius: 4px;
     }
@@ -927,24 +927,24 @@ body {
     .game-center-column {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 10px;
         align-items: center;
         flex: 1;
     }
 
     .game-center-column .next-piece-box {
         width: 100%;
-        padding: 8px;
+        padding: 10px;
         border-radius: 6px;
     }
 
     .game-center-column .next-piece-box h3 {
-        font-size: 13px;
-        margin-bottom: 4px;
+        font-size: 15px;
+        margin-bottom: 5px;
     }
 
     #nextPieceCanvas {
-        max-width: 120px;
+        max-width: 140px;
         height: auto;
     }
 
@@ -956,7 +956,7 @@ body {
     }
 
     #gameCanvas {
-        max-width: 280px;
+        max-width: 320px;
         height: auto;
         touch-action: none;
     }
@@ -964,9 +964,9 @@ body {
     .mobile-controls.active {
         display: grid;
         width: 100%;
-        max-width: 280px;
+        max-width: 320px;
         grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
+        gap: 12px;
     }
 
     .control-btn {
