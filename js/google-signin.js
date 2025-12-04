@@ -98,27 +98,87 @@ function createOrLoginGoogleAccount(googleData, rawToken) {
     }
 }
 
-// Vérifier le token Google avec le backend (immédiat fallback à localStorage)
+// Vérifier le token Google avec le backend
 async function verifyGoogleTokenWithBackend(token, email, pseudo, code) {
-    // Fallback IMMÉDIAT à localStorage — sans attendre le backend
-    // Cela évite tout blocage ou perte TLS
-    console.log('🔐 Google Sign-In: Mode localStorage (backend sync en arrière-plan)');
-    proceedWithLoginLocal(pseudo, code, email);
-    
-    // Mettre en file d'attente la vérification backend pour traitement asynchrone
     try {
         const serverUrl = window.accountSystem.serverUrl;
-        if (!serverUrl || serverUrl.includes('localhost')) {
-            return; // Skip backend for localhost or missing URL
-        }
-        window.accountSystem.enqueueOutbox({ 
-            type: 'verify_google', 
-            email: email, 
-            payload: { token, email, pseudo, code },
-            endpoint: `${serverUrl}/api/auth/verify-google`
+        
+        const response = await fetch(`${serverUrl}/api/auth/verify-google`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token })
         });
-    } catch (err) {
-        console.warn('⚠️ Could not queue backend verify:', err.message);
+
+        if (!response.ok) {
+            const bodyText = await response.text().catch(() => null);
+            console.error('❌ verifyGoogleTokenWithBackend non-ok response:', response.status, bodyText);
+            throw new Error(`Erreur serveur: ${response.status}${bodyText ? ' - ' + bodyText : ''}`);
+        }
+
+        const data = await response.json();
+        const maxRetries = 3;
+        let attempt = 0;
+        let lastError = null;
+
+        while (attempt < maxRetries) {
+            try {
+                attempt++;
+                const response = await fetch(`${serverUrl}/api/auth/verify-google`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+
+                if (!response.ok) {
+                    const bodyText = await response.text().catch(() => null);
+                    console.error('❌ verifyGoogleTokenWithBackend non-ok response:', response.status, bodyText);
+                    throw new Error(`Erreur serveur: ${response.status}${bodyText ? ' - ' + bodyText : ''}`);
+                }
+
+                const data = await response.json();
+                // success -> break loop
+                lastError = null;
+                // proceed with success handling below
+                // set data to a temp var via closure
+                verifyGoogleTokenWithBackend._lastData = data;
+                break;
+            } catch (err) {
+                lastError = err;
+                console.warn(`🔁 verify-google attempt ${attempt} failed:`, err.message);
+                // small delay before retry
+                await new Promise(r => setTimeout(r, 600 * attempt));
+            }
+        }
+
+        if (lastError) {
+            throw lastError;
+        }
+        
+        if (!data.success) {
+            throw new Error(data.message || 'Vérification échouée');
+        }
+
+        console.log('✅✅ Token vérifié et compte chargé du serveur');
+        
+        const serverAccount = data.account;
+        
+        // Mettre à jour l'email dans le système de comptes
+        window.accountSystem.currentUserEmail = email;
+        
+        // Charger ou mettre à jour le compte localement
+        window.accountSystem.accounts[pseudo] = serverAccount;
+        window.accountSystem.currentUser = pseudo;
+        window.accountSystem.saveCurrentSession();
+        
+        console.log('📦 Compte chargé depuis serveur, préparation connexion...');
+        proceedWithLogin(pseudo, code, email);
+        
+    } catch (error) {
+        console.error('❌ Erreur vérification backend:', error.message);
+        // Fallback: créer le compte localement même si serveur indisponible
+        console.log('⚠️ Fallback local (serveur indisponible)');
+        showLoginError('Erreur vérification serveur: ' + (error.message || 'Erreur inconnue'));
+        proceedWithLoginLocal(pseudo, code, email);
     }
 }
 
