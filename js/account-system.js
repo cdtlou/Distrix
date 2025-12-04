@@ -31,7 +31,8 @@ class AccountSystem {
                     }).catch(err => console.warn('⚠️ Erreur enregistrement Service Worker:', err));
                 }
             } catch (e) { /* ignore */ }
-            // DO NOT sync on startup (prevents data overwrites; outbox handles background sync)
+            // ❌ DO NOT AUTO-SYNC (causes data loss) - LOCAL-ONLY MODE
+            console.log('ℹ️ Mode LOCAL-ONLY: Sauvegarde uniquement locale (localStorage). Sync manuelle via bouton.');
             
             console.log('✅ AccountSystem initialisé avec succès');
             console.log(`� Backend: ${this.serverUrl}`);
@@ -544,13 +545,7 @@ class AccountSystem {
             console.error('❌ Erreur lors de la vérification:', error);
         }
         
-        // Synchroniser le compte courant avec le serveur (plus sûr que l'envoi bulk)
-        if (this.serverUrl && this.currentUser) {
-            // Enqueue the current user for reliable background sync
-            const account = this.accounts[this.currentUser];
-            const email = this.currentUserEmail || account.email || (this.currentUser + '@local');
-            this.enqueueOutbox({ type: 'account_update', email: email, payload: account });
-        }
+        // Don't auto-sync to server (LOCAL-ONLY mode) - queue for manual sync only
     }
 
     // Enqueue an operation into the IndexedDB outbox for later reliable syncing
@@ -740,90 +735,27 @@ class AccountSystem {
         }, 3000);
     }
 
-    // Synchroniser avec le serveur (charger les données du serveur)
+    // Synchroniser avec le serveur (DISABLED - LOCAL-ONLY mode)
     async syncWithServer() {
-        if (!this.serverUrl) return;
-        
-        try {
-            window.dispatchEvent(new CustomEvent('sync-status', { detail: 'syncing' }));
-            
-            const response = await fetch(`${this.serverUrl}/api/accounts`, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
-                    // Fusionner avec les données locales (les données du serveur prioritaires)
-                    this.accounts = { ...this.accounts, ...data.accounts };
-                    localStorage.setItem('tetrisAccounts', JSON.stringify(this.accounts));
-                    console.log('🔄 Synchronisation avec serveur réussie');
-                    window.dispatchEvent(new CustomEvent('sync-status', { detail: 'synced' }));
-                }
-            }
-        } catch (error) {
-            console.log('⚠️ Serveur indisponible - Mode local seulement');
-            window.dispatchEvent(new CustomEvent('sync-status', { detail: 'error' }));
-        }
+        console.warn('⚠️ syncWithServer disabled (LOCAL-ONLY mode). Use "Forcer sync" button to manually sync.');
+        return;
     }
 
-    // Envoyer les comptes au serveur
+    // Envoyer les comptes au serveur (DISABLED - LOCAL-ONLY mode)
     async syncToServer() {
-        try {
-            // Ne pas synchroniser si aucun compte en mémoire (évite d'écraser le serveur)
-            if (!this.accounts || Object.keys(this.accounts).length === 0) {
-                console.log('ℹ️ syncToServer: aucun compte local à synchroniser — skip');
-                return;
-            }
-
-            const response = await fetch(`${this.serverUrl}/api/accounts`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    accounts: this.accounts,
-                    merge: true,
-                    timestamp: new Date().toISOString()
-                })
-            });
-            if (response.ok) {
-                console.log('📤 Données synchronisées avec le serveur');
-                window.dispatchEvent(new CustomEvent('sync-status', { detail: 'synced' }));
-            } else {
-                const txt = await response.text().catch(() => null);
-                console.error('⚠️ syncToServer failed:', response.status, txt);
-                window.dispatchEvent(new CustomEvent('sync-status', { detail: 'error' }));
-            }
-        } catch (error) {
-            // Silencieux - le serveur n'est peut-être pas disponible
-            window.dispatchEvent(new CustomEvent('sync-status', { detail: 'error' }));
-        }
+        console.warn('⚠️ syncToServer disabled (LOCAL-ONLY mode). Use "Forcer sync" button for manual sync.');
+        return;
     }
 
-    // Synchroniser un compte spécifique avec le backend (après Google login)
+    // Synchroniser un compte spécifique avec le backend (DISABLED AUTO - queue only)
     async syncAccountToServer() {
-        if (!this.currentUserEmail || !this.currentUser) return;
-        
-        try {
-            const user = this.accounts[this.currentUser];
-            const response = await fetch(`${this.serverUrl}/api/accounts/${encodeURIComponent(this.currentUserEmail)}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(user)
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log('✅ Compte synchronisé avec serveur:', this.currentUserEmail);
-                return true;
-            } else {
-                const txt = await response.text().catch(() => null);
-                console.warn('⚠️ Erreur lors de la sync serveur:', response.status, txt);
-                return false;
-            }
-        } catch (error) {
-            console.warn('⚠️ Impossible de synchroniser (serveur indisponible):', error);
-            return false;
-        }
+        if (!this.currentUserEmail || !this.currentUser) return false;
+        // Queue for manual sync only - no auto-sync
+        const account = this.accounts[this.currentUser];
+        const email = this.currentUserEmail || account.email || (this.currentUser + '@local');
+        this.enqueueOutbox({ type: 'account_update', email: email, payload: account });
+        console.log('📥 Compte queued in outbox (use "Forcer sync" button to send)');
+        return true;
     }
 
 
