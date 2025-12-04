@@ -58,7 +58,8 @@ function handleGoogleSignIn(response) {
         
         // Attendre que les systèmes soient chargés, PUIS créer/connecter
         waitForSystems(() => {
-            createOrLoginGoogleAccount(decoded);
+            // Passer aussi le token brut (response.credential) au handler
+            createOrLoginGoogleAccount(decoded, token);
         });
         
     } catch (error) {
@@ -68,14 +69,15 @@ function handleGoogleSignIn(response) {
 }
 
 // Créer ou connecter un compte automatiquement avec les données Google
-function createOrLoginGoogleAccount(googleData) {
+function createOrLoginGoogleAccount(googleData, rawToken) {
     try {
         console.log('🎮 === DÉBUT CRÉATION/CONNEXION GOOGLE ===');
         
         const pseudo = googleData.email.split('@')[0];
         const code = googleData.sub;
         const email = googleData.email;
-        const token = googleData.credential || googleData.id_token; // Token Google complet
+        // Prefer explicit rawToken passed from handleGoogleSignIn (contains the id_token)
+        const token = rawToken || googleData.credential || googleData.id_token; // Token Google complet
         
         console.log(`   Email: ${email}`);
         console.log(`   Pseudo: ${pseudo}`);

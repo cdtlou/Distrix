@@ -445,9 +445,9 @@ class AccountSystem {
             console.error('❌ Erreur lors de la vérification:', error);
         }
         
-        // Synchroniser avec le serveur en arrière-plan
-        if (this.serverUrl) {
-            this.syncToServer();
+        // Synchroniser le compte courant avec le serveur (plus sûr que l'envoi bulk)
+        if (this.serverUrl && this.currentUser && this.currentUserEmail) {
+            this.syncAccountToServer();
         }
     }
 
