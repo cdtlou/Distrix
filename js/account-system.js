@@ -34,6 +34,8 @@ class AccountSystem {
                 this.accounts = JSON.parse(mainData);
                 this.currentUser = localStorage.getItem('tetrisCurrentUser');
                 console.log('✅ Comptes chargés depuis localStorage');
+                // Signaler que les comptes sont prêts (synchrones)
+                try { window.dispatchEvent(new CustomEvent('accounts-ready')); } catch (e) {}
                 return;
             } catch (error) {
                 console.warn('⚠️ Erreur parse localStorage, essai du backup...');
@@ -49,6 +51,8 @@ class AccountSystem {
                 // Restaurer le principal depuis le backup
                 localStorage.setItem('tetrisAccounts', backupData);
                 console.log('✅ Comptes restaurés depuis le backup localStorage');
+                // Signaler que les comptes sont prêts (synchrones)
+                try { window.dispatchEvent(new CustomEvent('accounts-ready')); } catch (e) {}
                 return;
             } catch (error) {
                 console.warn('⚠️ Erreur parse backup localStorage...');
@@ -74,6 +78,8 @@ class AccountSystem {
             
             // Après avoir chargé les comptes, migrer les anciens pour être compatibles
             this.migrateOldAccounts();
+            // Signaler que les comptes sont prêts (après la migration async)
+            try { window.dispatchEvent(new CustomEvent('accounts-ready')); } catch (e) {}
         });
     }
 
