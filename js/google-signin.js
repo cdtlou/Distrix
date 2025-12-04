@@ -1,6 +1,6 @@
 // ============ GOOGLE SIGN-IN INTEGRATION ============
 
-// Callback pour Google Sign-In
+// Callback pour Google Sign-In (one-tap ou button)
 function handleGoogleSignIn(response) {
     console.log('🔐 Google Sign-In callback reçu');
     
@@ -26,61 +26,65 @@ function handleGoogleSignIn(response) {
         console.log('   - Email:', payload.email);
         console.log('   - Name:', payload.name);
         console.log('   - Picture:', payload.picture);
+        console.log('   - Sub (ID):', payload.sub);
         
-        // Créer un compte avec les données Google
-        createGoogleAccount(payload);
+        // Créer/connecter le compte avec les données Google
+        createOrLoginGoogleAccount(payload);
         
     } catch (error) {
         console.error('❌ Erreur décodage token:', error);
     }
 }
 
-// Créer un compte automatique avec les données Google
-function createGoogleAccount(googleData) {
+// Créer ou connecter un compte automatiquement avec les données Google
+function createOrLoginGoogleAccount(googleData) {
     // Utiliser l'email comme pseudo (avant le @)
     const pseudo = googleData.email.split('@')[0];
     const code = googleData.sub; // Google User ID unique comme code
     
-    console.log(`🎮 Création de compte: ${pseudo}`);
+    console.log(`🎮 Tentative de création/connexion: ${pseudo}`);
     
     // Créer le compte via le système de comptes existant
-    const result = accountSystem.createAccount(pseudo, code);
+    const createResult = accountSystem.createAccount(pseudo, code);
     
-    if (result.success) {
-        console.log(`✅✅ Compte Google créé: ${pseudo}`);
-        
-        // Se connecter automatiquement
-        const loginResult = accountSystem.login(pseudo, code);
-        if (loginResult.success) {
-            console.log(`✅ Connexion automatique réussie`);
-            
-            // Aller au lobby
-            if (window.uiManager) {
-                uiManager.showPage('lobbyPage');
-                uiManager.updateLobbyDisplay();
-                console.log('✅ Redirection au lobby');
-            }
-        }
+    if (createResult.success) {
+        console.log(`✅ Compte Google créé: ${pseudo}`);
     } else {
-        console.warn(`⚠️ ${result.message}`);
+        console.log(`ℹ️ Compte existe déjà: ${pseudo}`);
+    }
+    
+    // Toujours essayer de se connecter
+    const loginResult = accountSystem.login(pseudo, code);
+    
+    if (loginResult.success) {
+        console.log(`✅ Connexion réussie: ${pseudo}`);
         
-        // Si le compte existe déjà, se connecter simplement
-        if (result.message.includes('déjà')) {
-            const loginResult = accountSystem.login(pseudo, code);
-            if (loginResult.success) {
-                console.log(`✅ Connexion réussie (compte existant)`);
-                
+        // Attendre que uiManager soit chargé (au cas où)
+        if (window.uiManager) {
+            uiManager.showPage('lobbyPage');
+            uiManager.updateLobbyDisplay();
+            console.log('✅ Redirection au lobby');
+        } else {
+            console.warn('⚠️ uiManager pas encore chargé, retry...');
+            setTimeout(() => {
                 if (window.uiManager) {
                     uiManager.showPage('lobbyPage');
                     uiManager.updateLobbyDisplay();
                 }
-            }
+            }, 500);
+        }
+    } else {
+        console.error(`❌ Connexion échouée: ${loginResult.message}`);
+        // Afficher l'erreur à l'utilisateur
+        const errorDiv = document.getElementById('loginError');
+        if (errorDiv) {
+            errorDiv.textContent = `Erreur: ${loginResult.message}`;
         }
     }
 }
 
 // Exporter globalement
 window.handleGoogleSignIn = handleGoogleSignIn;
-window.createGoogleAccount = createGoogleAccount;
+window.createOrLoginGoogleAccount = createOrLoginGoogleAccount;
 
 console.log('🔐 Google Sign-In module chargé');

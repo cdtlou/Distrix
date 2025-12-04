@@ -13,27 +13,19 @@
 <body>
     <!-- Sync indicator removed per user preference (visual) -->
 
-    <!-- Page de connexion -->
+    <!-- Page de connexion - Google Only -->
     <div id="loginPage" class="page active">
         <div class="login-container">
             <h1>DISTRICT</h1>
             <div class="login-form">
-                <input type="text" id="pseudoInput" placeholder="Pseudo" maxlength="20">
-                <input type="password" id="codeInput" placeholder="Code (mot de passe)" maxlength="20">
-                <div class="login-buttons">
-                    <button id="createBtn" class="btn btn-primary">Créer un compte</button>
-                    <button id="loginBtn" class="btn btn-primary">Se connecter</button>
+                <p style="font-size: 14px; color: #ccc; margin-bottom: 30px;">Connecte-toi avec Google pour commencer</p>
+                <div id="g_id_onload"
+                    data-client_id="1049140117448-3rekdda7kshkkikr3dfqo8jeaj24mer5.apps.googleusercontent.com"
+                    data-login_uri="https://cdtlou.github.io/-Distrix-/oauth-callback.html"
+                    data-callback="handleGoogleSignIn"
+                    data-auto_prompt="false">
                 </div>
-                <div style="margin-top: 20px; text-align: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
-                    <p style="font-size: 12px; color: #999; margin-bottom: 10px;">OU AVEC GOOGLE</p>
-                    <div id="g_id_onload"
-                        data-client_id="1049140117448-3rekdda7kshkkikr3dfqo8jeaj24mer5.apps.googleusercontent.com"
-                        data-login_uri="https://cdtlou.github.io/-Distrix-/oauth-callback.html"
-                        data-callback="handleGoogleSignIn"
-                        data-auto_prompt="false">
-                    </div>
-                    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="dark" data-text="signup_with" data-shape="rectangular"></div>
-                </div>
+                <div class="g_id_signin" data-type="standard" data-size="large" data-theme="dark" data-text="signup_with" data-shape="rectangular"></div>
             </div>
             <div id="loginError" class="error-message"></div>
         </div>
