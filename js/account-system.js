@@ -488,65 +488,47 @@ class AccountSystem {
     }
 
     saveAccounts() {
-        // QUADRUPLE SAUVEGARDE: localStorage principal + backup localStorage + sessionStorage + IndexedDB
-        const dataString = JSON.stringify(this.accounts);
-        // Also keep a durable history of recent snapshots to recover from accidental overwrites/clears
+        // PRIORITY: Save directly to Railway backend immediately (not localStorage first)
+        // This ensures accounts are persisted server-side even if localStorage buggy on mobile
+        
+        if (!this.currentUser || !this.serverUrl) {
+            console.warn('⚠️ saveAccounts: currentUser or serverUrl missing, skipping server save');
+            return;
+        }
+
         try {
-            if (this.accounts && Object.keys(this.accounts).length > 0) {
-                const rawHist = localStorage.getItem('tetrisAccountsHistory');
-                let hist = [];
-                try { hist = rawHist ? JSON.parse(rawHist) : []; } catch (e) { hist = []; }
-                const snapshot = { accounts: this.accounts, currentUser: this.currentUser, ts: new Date().toISOString() };
-                hist.push(snapshot);
-                // Keep last 20 snapshots
-                if (hist.length > 20) hist = hist.slice(hist.length - 20);
-                try { localStorage.setItem('tetrisAccountsHistory', JSON.stringify(hist)); } catch (e) { /* ignore */ }
+            const account = this.accounts[this.currentUser];
+            if (!account) {
+                console.warn('⚠️ saveAccounts: account not found for', this.currentUser);
+                return;
             }
-        } catch (e) {
-            console.warn('⚠️ Erreur lors de la mise à jour de l\'historique local:', e);
-        }
-        
-        // Sauvegarder dans localStorage (principal)
-        try {
-            localStorage.setItem('tetrisAccounts', dataString);
-            localStorage.setItem('tetrisLastSave', new Date().toISOString());
-            console.log('✅ Sauvegarde localStorage principale réussie');
+
+            const email = this.currentUserEmail || account.email || (this.currentUser + '@local');
+            
+            // Direct save to Railway (don't wait, but do it)
+            fetch(`${this.serverUrl}/api/accounts/${encodeURIComponent(email)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(account)
+            })
+            .then(r => {
+                if (r.ok) {
+                    console.log('✅ Compte sauvegardé sur Railway:', email);
+                } else {
+                    console.warn('⚠️ Railway save failed:', r.status);
+                    // Queue to outbox as fallback
+                    this.enqueueOutbox({ type: 'account_update', email: email, payload: account });
+                }
+            })
+            .catch(err => {
+                console.warn('⚠️ Railway save network error, queueing to outbox:', err);
+                // Queue to outbox as fallback
+                this.enqueueOutbox({ type: 'account_update', email: email, payload: account });
+            });
+
         } catch (error) {
-            console.error('❌ Erreur sauvegarde localStorage:', error);
+            console.error('❌ Error in saveAccounts:', error);
         }
-        
-        // Sauvegarder un backup dans localStorage aussi (redondance)
-        try {
-            localStorage.setItem('tetrisAccountsBackup', dataString);
-            console.log('✅ Sauvegarde localStorage backup réussie');
-        } catch (error) {
-            console.error('❌ Erreur sauvegarde backup localStorage:', error);
-        }
-        
-        // Sauvegarder aussi dans sessionStorage pour la session actuelle
-        try {
-            sessionStorage.setItem('tetrisAccountsSession', dataString);
-        } catch (error) {
-            console.error('❌ Erreur sauvegarde sessionStorage:', error);
-        }
-        
-        // Sauvegarder dans IndexedDB pour persistance maximale
-        this.saveToIndexedDB();
-        
-        // Vérifier que la sauvegarde s'est bien faite localement
-        try {
-            const verify = localStorage.getItem('tetrisAccounts');
-            if (verify !== dataString) {
-                console.error('❌ ERREUR: La sauvegarde locale n\'a pas fonctionné!');
-                alert('⚠️ ATTENTION: Erreur lors de la sauvegarde des données!');
-            } else {
-                console.log('✅ VÉRIFICATION OK - Sauvegarde confirmée - ' + Object.keys(this.accounts).length + ' compte(s)');
-            }
-        } catch (error) {
-            console.error('❌ Erreur lors de la vérification:', error);
-        }
-        
-        // Don't auto-sync to server (LOCAL-ONLY mode) - queue for manual sync only
     }
 
     // Enqueue an operation into the IndexedDB outbox for later reliable syncing

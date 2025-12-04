@@ -158,19 +158,36 @@ async function verifyGoogleTokenWithBackend(token, email, pseudo, code) {
             throw new Error(data.message || 'Vérification échouée');
         }
 
-        console.log('✅✅ Token vérifié et compte chargé du serveur');
-        
-        const serverAccount = data.account;
-        
         // Mettre à jour l'email dans le système de comptes
         window.accountSystem.currentUserEmail = email;
         
-        // Charger ou mettre à jour le compte localement
+        // Load or create account from server data
+        const serverAccount = data.account || window.accountSystem.accounts[pseudo] || {
+            pseudo: pseudo,
+            code: code,
+            email: email,
+            googleSub: code,
+            xp: 0,
+            level: 1,
+            bestScore: 0,
+            ownedItems: { skins: [0], musics: [0] },
+            equippedSkin: 0,
+            equippedMusic: 0,
+            musicVolume: 100,
+            effectsVolume: 100,
+            controls: { left: 'a', right: 'd', rotate: 'w', down: 's', hardDrop: ' ' },
+            createdAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString()
+        };
+
         window.accountSystem.accounts[pseudo] = serverAccount;
         window.accountSystem.currentUser = pseudo;
         window.accountSystem.saveCurrentSession();
         
-        console.log('📦 Compte chargé depuis serveur, préparation connexion...');
+        // Immediately save to Railway to ensure account is persisted
+        window.accountSystem.saveAccounts();
+        
+        console.log('📦 Compte chargé depuis serveur ou créé localement, préparation connexion...');
         proceedWithLogin(pseudo, code, email);
         
     } catch (error) {
