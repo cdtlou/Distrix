@@ -213,7 +213,7 @@ class UIManager {
                 }
             }
         } catch (err) {
-            console.warn('⚠️ Impossible d'appeler Google Identity API lors de la déconnexion:', err);
+            console.warn("⚠️ Impossible d'appeler Google Identity API lors de la déconnexion:", err);
         }
     }
 
