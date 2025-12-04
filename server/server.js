@@ -186,6 +186,29 @@ app.post('/api/accounts/:email', (req, res) => {
     }
 });
 
+// (Compat) Endpoint pour recevoir un objet complet de comptes (utilisé par anciens clients)
+app.post('/api/accounts', (req, res) => {
+    try {
+        const data = req.body;
+
+        // Défense: refuser les payloads vides
+        if (!data || !data.accounts || Object.keys(data.accounts).length === 0) {
+            console.warn('⚠️ Rejected empty /api/accounts payload');
+            return res.status(400).json({ success: false, message: 'Payload vide ou invalide' });
+        }
+
+        // Charger, fusionner et sauvegarder
+        const accounts = loadAccounts();
+        Object.assign(accounts, data.accounts);
+        saveAccounts(accounts);
+
+        res.json({ success: true, message: 'Comptes synchronisés (compat)', totalAccounts: Object.keys(accounts).length });
+    } catch (error) {
+        console.error('❌ Erreur /api/accounts:', error);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
 // Ajouter de l'XP
 app.post('/api/accounts/:email/addxp', (req, res) => {
     try {
