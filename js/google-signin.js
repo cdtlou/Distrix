@@ -108,7 +108,9 @@ async function verifyGoogleTokenWithBackend(token, email, pseudo, code) {
         });
 
         if (!response.ok) {
-            throw new Error(`Erreur serveur: ${response.status}`);
+            const bodyText = await response.text().catch(() => null);
+            console.error('❌ verifyGoogleTokenWithBackend non-ok response:', response.status, bodyText);
+            throw new Error(`Erreur serveur: ${response.status}${bodyText ? ' - ' + bodyText : ''}`);
         }
 
         const data = await response.json();
@@ -136,6 +138,7 @@ async function verifyGoogleTokenWithBackend(token, email, pseudo, code) {
         console.error('❌ Erreur vérification backend:', error.message);
         // Fallback: créer le compte localement même si serveur indisponible
         console.log('⚠️ Fallback local (serveur indisponible)');
+        showLoginError('Erreur vérification serveur: ' + (error.message || 'Erreur inconnue'));
         proceedWithLoginLocal(pseudo, code, email);
     }
 }

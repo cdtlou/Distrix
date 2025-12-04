@@ -499,6 +499,10 @@ class AccountSystem {
             if (response.ok) {
                 console.log('📤 Données synchronisées avec le serveur');
                 window.dispatchEvent(new CustomEvent('sync-status', { detail: 'synced' }));
+            } else {
+                const txt = await response.text().catch(() => null);
+                console.error('⚠️ syncToServer failed:', response.status, txt);
+                window.dispatchEvent(new CustomEvent('sync-status', { detail: 'error' }));
             }
         } catch (error) {
             // Silencieux - le serveur n'est peut-être pas disponible
@@ -523,7 +527,8 @@ class AccountSystem {
                 console.log('✅ Compte synchronisé avec serveur:', this.currentUserEmail);
                 return true;
             } else {
-                console.warn('⚠️ Erreur lors de la sync serveur:', response.status);
+                const txt = await response.text().catch(() => null);
+                console.warn('⚠️ Erreur lors de la sync serveur:', response.status, txt);
                 return false;
             }
         } catch (error) {
