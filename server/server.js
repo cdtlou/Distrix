@@ -208,6 +208,20 @@ app.post('/api/accounts/:email', (req, res) => {
             return res.status(404).json({ success: false, message: 'Compte non trouvé' });
         }
 
+        // If client provided a lastUpdated, ensure it is not older than server's
+        if (updatedData && updatedData.lastUpdated) {
+            try {
+                const incoming = new Date(updatedData.lastUpdated).getTime();
+                const existing = account.lastUpdated ? new Date(account.lastUpdated).getTime() : 0;
+                if (!isNaN(incoming) && incoming < existing) {
+                    console.warn(`⚠️ Rejected update for ${email}: incoming lastUpdated older than server`);
+                    return res.status(409).json({ success: false, message: 'Update rejected: older data' });
+                }
+            } catch (e) {
+                // ignore parse errors and continue
+            }
+        }
+
         // Backup avant modification
         try { saveAccounts(accounts); } catch(e) { console.warn('⚠️ Backup avant update failed', e); }
 
@@ -242,12 +256,37 @@ app.post('/api/accounts', (req, res) => {
             return res.status(400).json({ success: false, message: 'Payload vide ou invalide' });
         }
 
-        // Charger, fusionner et sauvegarder
+        // Charger, fusionner et sauvegarder (mais refuser/ignorer les mises à jour plus anciennes)
         const accounts = loadAccounts();
-        Object.assign(accounts, data.accounts);
-        saveAccounts(accounts);
+        const incoming = data.accounts || {};
+        let mergedCount = 0;
 
-        res.json({ success: true, message: 'Comptes synchronisés (compat)', totalAccounts: Object.keys(accounts).length });
+        for (const key of Object.keys(incoming)) {
+            const incomingAccount = incoming[key];
+            const existing = accounts[key];
+
+            // If existing and incoming has lastUpdated older than existing, skip
+            if (existing && incomingAccount && incomingAccount.lastUpdated) {
+                try {
+                    const inc = new Date(incomingAccount.lastUpdated).getTime();
+                    const ex = existing.lastUpdated ? new Date(existing.lastUpdated).getTime() : 0;
+                    if (!isNaN(inc) && inc < ex) {
+                        console.warn(`⚠️ Skipping incoming older account for ${key}`);
+                        continue; // skip merging this account
+                    }
+                } catch (e) {
+                    // parse error: fallthrough to merge
+                }
+            }
+
+            accounts[key] = { ...(existing || {}), ...(incomingAccount || {}) };
+            accounts[key].lastUpdated = new Date().toISOString();
+            mergedCount++;
+        }
+
+        if (mergedCount > 0) saveAccounts(accounts);
+
+        res.json({ success: true, message: 'Comptes synchronisés (compat)', totalAccounts: Object.keys(accounts).length, merged: mergedCount });
     } catch (error) {
         console.error('❌ Erreur /api/accounts:', error);
         res.status(500).json({ success: false, message: 'Erreur serveur' });
