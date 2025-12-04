@@ -67,14 +67,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // Backup UI removed — no setup required
 
     // Vérifier si un utilisateur est déjà connecté (en cas de rechargement)
-    if (accountSystem.currentUser) {
-        // Restaurer la session
-        uiManager.showPage('lobbyPage');
-        uiManager.updateLobbyDisplay();
-        console.log(`✅ Session restaurée pour ${accountSystem.currentUser}`);
-    } else {
-        uiManager.showPage('loginPage');
-    }
+    // Protéger avec un délai pour s'assurer que uiManager est prêt
+    setTimeout(() => {
+        if (!window.uiManager) {
+            console.warn('⚠️ uiManager pas disponible');
+            return;
+        }
+        
+        if (accountSystem.currentUser) {
+            // Restaurer la session
+            window.uiManager.showPage('lobbyPage');
+            window.uiManager.updateLobbyDisplay();
+            console.log(`✅ Session restaurée pour ${accountSystem.currentUser}`);
+        } else {
+            window.uiManager.showPage('loginPage');
+        }
+    }, 100);
 
     // Initialiser les volumes du système audio
     const user = accountSystem.getCurrentUser();

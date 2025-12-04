@@ -1,19 +1,20 @@
 // ============ GOOGLE SIGN-IN INTEGRATION ============
 
 // Attendre que les systèmes clés soient chargés
-function waitForSystems(callback, maxRetries = 50) {
+function waitForSystems(callback, maxRetries = 100) {
     const hasAccountSystem = window.accountSystem && typeof window.accountSystem.login === 'function';
     const hasUIManager = window.uiManager && typeof window.uiManager.showPage === 'function';
     
-    console.log(`⏳ Vérification des systèmes... AccountSystem: ${hasAccountSystem}, UIManager: ${hasUIManager}`);
-    
     if (hasAccountSystem && hasUIManager) {
-        console.log('✅ Tous les systèmes sont chargés!');
+        console.log('✅ Tous les systèmes sont chargés et prêts!');
         callback();
     } else if (maxRetries > 0) {
-        setTimeout(() => waitForSystems(callback, maxRetries - 1), 100);
+        if (maxRetries % 20 === 0) {
+            console.log(`⏳ Attente systèmes... (${100 - maxRetries}ms, retry ${100 - maxRetries})`);
+        }
+        setTimeout(() => waitForSystems(callback, maxRetries - 1), 50);
     } else {
-        console.error('❌ Timeout: Les systèmes ne se sont pas chargés');
+        console.error('❌ Timeout: Les systèmes ne se sont pas chargés après 5s');
         showLoginError('Erreur: Le jeu n\'a pas pu se charger complètement');
     }
 }
