@@ -294,8 +294,9 @@ class UIManager {
                 div.classList.add('locked');
             }
 
-            // Afficher un carré avec la couleur du skin
-            const colorSquare = `<div class="color-square" style="background-color: ${skin.color}; width: 60px; height: 60px; border-radius: 8px; margin: 0 auto 10px; border: 2px solid rgba(255, 255, 255, 0.3);"></div>`;
+            // Afficher un carré avec la couleur du skin (ou gradient si multicolor)
+            const bgStyle = skin.gradient ? `background: ${skin.gradient}` : `background-color: ${skin.color}`;
+            const colorSquare = `<div class="color-square" style="${bgStyle}; width: 60px; height: 60px; border-radius: 8px; margin: 0 auto 10px; border: 2px solid rgba(255, 255, 255, 0.3);"></div>`;
 
             div.innerHTML = `
                 ${colorSquare}
@@ -412,7 +413,7 @@ class UIManager {
                 div.classList.add('equipped');
             }
 
-            const colorSquare = `<div class="color-square" style="background-color: ${skin.color}; width: 60px; height: 60px; border-radius: 8px; margin: 0 auto 10px; border: 2px solid rgba(255, 255, 255, 0.3);"></div>`;
+            const colorSquare = `<div class="color-square" style="${skin.gradient ? `background: ${skin.gradient}` : `background-color: ${skin.color}`}; width: 60px; height: 60px; border-radius: 8px; margin: 0 auto 10px; border: 2px solid rgba(255, 255, 255, 0.3);"></div>`;
 
             div.innerHTML = `
                 ${colorSquare}

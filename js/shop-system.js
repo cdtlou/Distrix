@@ -8,7 +8,7 @@ const ShopSystem = {
         { id: 3, name: 'Bleu', level: 4, color: '#0099FF' },
         { id: 4, name: 'Rouge', level: 5, color: '#FF3333' },
         { id: 5, name: 'Violet', level: 6, color: '#DD00FF' },
-        { id: 6, name: 'Multicolor (Tetris)', level: 7, color: '#FF00FF', isMulticolor: true },
+        { id: 6, name: 'Multicolor (Tetris)', level: 7, color: '#FF00FF', gradient: 'linear-gradient(135deg, #FF0000 0%, #FFD700 25%, #00FF00 50%, #0099FF 75%, #FF1493 100%)', isMulticolor: true },
         { id: 7, name: 'Rose', level: 8, color: '#FF1493' },
         { id: 8, name: 'Orange', level: 9, color: '#FF8C00' },
         { id: 9, name: 'Cyan', level: 10, color: '#00FFFF' },
@@ -64,6 +64,16 @@ const ShopSystem = {
                 backgroundColor: skin.backgroundColor
             };
         }
+        
+        // Pour le multicolor (Tetris), retourner plusieurs couleurs possibles
+        if (skin.isMulticolor) {
+            return {
+                color: skin.color,
+                isMulticolor: true,
+                colors: ['#FF0000', '#FFD700', '#00FF00', '#0099FF', '#FF1493'] // Rouge, Or, Vert, Bleu, Rose
+            };
+        }
+        
         return { color: skin.color };
     },
     

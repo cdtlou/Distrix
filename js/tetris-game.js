@@ -585,11 +585,23 @@ class TetrisGame {
         if (typeof color === 'object' && color.color) {
             blockColor = color.color;
             bgColor = color.backgroundColor || null;
+            
+            // Support pour multicolor (Tetris): choisir une couleur aléatoire
+            if (color.isMulticolor && color.colors) {
+                const randomColor = color.colors[Math.floor(Math.random() * color.colors.length)];
+                blockColor = randomColor;
+            }
         } else if (typeof color === 'string' && color.startsWith('{')) {
             try {
                 const obj = JSON.parse(color);
                 blockColor = obj.color;
                 bgColor = obj.backgroundColor || null;
+                
+                // Support pour multicolor
+                if (obj.isMulticolor && obj.colors) {
+                    const randomColor = obj.colors[Math.floor(Math.random() * obj.colors.length)];
+                    blockColor = randomColor;
+                }
             } catch (e) {
                 blockColor = color;
             }
