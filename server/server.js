@@ -179,6 +179,17 @@ app.get('/api/accounts/:email', (req, res) => {
     }
 });
 
+// Endpoint public: retourner tous les comptes (utilisé par le client pour sync initial)
+app.get('/api/accounts', (req, res) => {
+    try {
+        const accounts = loadAccounts();
+        return res.json({ success: true, accounts });
+    } catch (error) {
+        console.error('❌ Erreur lecture comptes (public):', error);
+        return res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
 // Sauvegarder/mettre à jour un compte
 app.post('/api/accounts/:email', (req, res) => {
     try {

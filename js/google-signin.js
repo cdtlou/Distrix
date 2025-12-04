@@ -114,6 +114,43 @@ async function verifyGoogleTokenWithBackend(token, email, pseudo, code) {
         }
 
         const data = await response.json();
+        const maxRetries = 3;
+        let attempt = 0;
+        let lastError = null;
+
+        while (attempt < maxRetries) {
+            try {
+                attempt++;
+                const response = await fetch(`${serverUrl}/api/auth/verify-google`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+
+                if (!response.ok) {
+                    const bodyText = await response.text().catch(() => null);
+                    console.error('❌ verifyGoogleTokenWithBackend non-ok response:', response.status, bodyText);
+                    throw new Error(`Erreur serveur: ${response.status}${bodyText ? ' - ' + bodyText : ''}`);
+                }
+
+                const data = await response.json();
+                // success -> break loop
+                lastError = null;
+                // proceed with success handling below
+                // set data to a temp var via closure
+                verifyGoogleTokenWithBackend._lastData = data;
+                break;
+            } catch (err) {
+                lastError = err;
+                console.warn(`🔁 verify-google attempt ${attempt} failed:`, err.message);
+                // small delay before retry
+                await new Promise(r => setTimeout(r, 600 * attempt));
+            }
+        }
+
+        if (lastError) {
+            throw lastError;
+        }
         
         if (!data.success) {
             throw new Error(data.message || 'Vérification échouée');
