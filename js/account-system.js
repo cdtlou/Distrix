@@ -5,8 +5,9 @@ class AccountSystem {
             this.accounts = {};
             this.currentUser = null;
             this.currentUserEmail = null; // Stocker l'email Google
-            // URL du serveur de synchronisation
-            this.serverUrl = 'https://distrix-backend.onrender.com'; // À remplacer par ton URL de déploiement
+            // URL du serveur de synchronisation (Railway déployé)
+            // Remplacez par l'URL fournie par Railway. Exemple: https://caboose.proxy.rlwy.net
+            this.serverUrl = 'https://caboose.proxy.rlwy.net'; // Railway proxy URL fournie par l'utilisateur
             // Fallback local pour développement
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 this.serverUrl = 'http://localhost:3000';
