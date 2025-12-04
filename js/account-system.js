@@ -1053,7 +1053,30 @@ class AccountSystem {
         return Object.values(this.accounts);
     }
 
-    getTopScores(limit = 3) {
+    async getTopScores(limit = 3) {
+        // 🔥 Try to load global leaderboard from Railway backend first
+        try {
+            if (!this.serverUrl) {
+                throw new Error('No server URL');
+            }
+            
+            const res = await fetch(`${this.serverUrl}/api/leaderboard?limit=${limit}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                if (data.scores && Array.isArray(data.scores)) {
+                    console.log('✅ TOP scores chargés depuis Railway (global)');
+                    return data.scores.slice(0, limit);
+                }
+            }
+        } catch (err) {
+            console.warn('⚠️ Leaderboard Railway failed, fallback to local accounts');
+        }
+        
+        // Fallback: use local accounts sorted by bestScore
         return Object.values(this.accounts)
             .sort((a, b) => b.bestScore - a.bestScore)
             .slice(0, limit)

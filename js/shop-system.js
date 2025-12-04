@@ -8,13 +8,14 @@ const ShopSystem = {
         { id: 3, name: 'Bleu', level: 4, color: '#0099FF' },
         { id: 4, name: 'Rouge', level: 5, color: '#FF3333' },
         { id: 5, name: 'Violet', level: 6, color: '#DD00FF' },
-        { id: 6, name: 'Rose', level: 7, color: '#FF1493' },
-        { id: 7, name: 'Orange', level: 8, color: '#FF8C00' },
-        { id: 8, name: 'Cyan', level: 9, color: '#00FFFF' },
-        { id: 9, name: 'Lime', level: 10, color: '#32CD32' },
-        { id: 10, name: 'Or', level: 11, color: '#FFD700' },
-        { id: 11, name: 'Argent', level: 12, color: '#C0C0C0' },
-        { id: 12, name: 'Arc-en-ciel', level: 13, color: '#FF6B9D' }
+        { id: 6, name: 'Multicolor', level: 7, color: '#FF6B9D', isMulticolor: true },
+        { id: 7, name: 'Rose', level: 8, color: '#FF1493' },
+        { id: 8, name: 'Orange', level: 9, color: '#FF8C00' },
+        { id: 9, name: 'Cyan', level: 10, color: '#00FFFF' },
+        { id: 10, name: 'Lime', level: 11, color: '#32CD32' },
+        { id: 11, name: 'Or', level: 12, color: '#FFD700' },
+        { id: 12, name: 'Argent', level: 13, color: '#C0C0C0' },
+        { id: 13, name: 'Arc-en-ciel', level: 14, color: '#FF6B9D' }
     ],
 
     // Définition des musiques

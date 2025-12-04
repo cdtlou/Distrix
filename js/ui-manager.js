@@ -223,7 +223,7 @@ class UIManager {
         errorDiv.style.color = type === 'success' ? '#4caf50' : '#ff6b6b';
     }
 
-    updateLobbyDisplay() {
+    async updateLobbyDisplay() {
         const user = accountSystem.getCurrentUser();
         if (!user) return;
 
@@ -246,8 +246,8 @@ class UIManager {
         // Record
         document.getElementById('playerRecord').textContent = user.bestScore;
 
-        // Afficher le top 3
-        const topScores = accountSystem.getTopScores(3);
+        // Afficher le top 3 (load from Railway if available)
+        const topScores = await accountSystem.getTopScores(3);
         const topList = document.getElementById('topPlayers');
         topList.innerHTML = '';
         
@@ -273,6 +273,13 @@ class UIManager {
         const user = accountSystem.getCurrentUser();
         if (!user) return;
 
+        // 🔧 Reset scroll position to top when opening shop to prevent visual bug
+        setTimeout(() => {
+            window.scrollTo(0, 0);
+            const shopPage = document.getElementById('shopPage');
+            if (shopPage) shopPage.scrollTop = 0;
+        }, 0);
+
         console.log('UIManager.displayShop - ShopSystem.musics =', window.ShopSystem && window.ShopSystem.musics);
 
         // Afficher les skins
@@ -291,8 +298,14 @@ class UIManager {
                 div.classList.add('locked');
             }
 
-            // Afficher un carré avec la couleur du skin
-            const colorSquare = `<div class="color-square" style="background-color: ${skin.color}; width: 60px; height: 60px; border-radius: 8px; margin: 0 auto 10px; border: 2px solid rgba(255, 255, 255, 0.3);"></div>`;
+            // Afficher un carré avec la couleur du skin (support Multicolor)
+            let colorSquare;
+            if (skin.isMulticolor) {
+                // 🌈 Tetris-style multicolor block with gradient
+                colorSquare = `<div class="color-square" style="width: 60px; height: 60px; border-radius: 8px; margin: 0 auto 10px; border: 2px solid rgba(255, 255, 255, 0.3); background: linear-gradient(135deg, #FF0000 0%, #00FF00 25%, #0000FF 50%, #FFFF00 75%, #FF00FF 100%); box-shadow: inset 0 0 10px rgba(255,255,255,0.5);\"></div>`;
+            } else {
+                colorSquare = `<div class="color-square" style="background-color: ${skin.color}; width: 60px; height: 60px; border-radius: 8px; margin: 0 auto 10px; border: 2px solid rgba(255, 255, 255, 0.3);\"></div>`;
+            }
 
             div.innerHTML = `
                 ${colorSquare}
