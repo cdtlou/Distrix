@@ -655,10 +655,13 @@ class AccountSystem {
     }
 
     logout() {
+        // Se déconnecter localement sans forcer une resynchronisation complète
+        // (évite d'écraser les données serveur par erreur)
+        console.log('🔒 Déconnexion en cours - comptes en mémoire:', Object.keys(this.accounts).length);
         this.currentUser = null;
         this.saveCurrentSession();
-        this.saveAccounts();
-        console.log('✅ Déconnexion réussie');
+        // Ne PAS appeler this.saveAccounts() ici pour éviter toute écriture involontaire au serveur
+        console.log('✅ Déconnexion locale réussie (session locale effacée)');
     }
 
     getCurrentUser() {
