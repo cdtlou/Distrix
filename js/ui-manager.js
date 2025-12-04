@@ -730,9 +730,10 @@ try {
     console.log('🚀 Création de UIManager...');
     uiManager = new UIManager();
     window.uiManager = uiManager;
-    console.log('✅ UIManager créé avec succès');
+    console.log('✅ UIManager créé et attaché à window');
 } catch (error) {
     console.error('❌ Erreur création UIManager:', error);
+    console.error('Stack:', error.stack);
     // Créer un objet dummy pour éviter les crashes
     window.uiManager = {
         showPage: () => console.warn('UIManager non disponible'),

@@ -9,15 +9,16 @@ function waitForSystems(callback, maxRetries = 200) {
         console.log('✅ Tous les systèmes sont chargés et prêts!');
         callback();
     } else if (maxRetries > 0) {
-        if (maxRetries % 50 === 0) {
+        if (maxRetries % 40 === 0) {
             console.log(`⏳ Attente... AS:${hasAccountSystem} UI:${hasUIManager} (${200-maxRetries*25}ms)`);
         }
         setTimeout(() => waitForSystems(callback, maxRetries - 1), 25);
     } else {
         console.error('❌ Timeout: Les systèmes ne se sont pas chargés après 5s');
-        console.error('   accountSystem:', typeof window.accountSystem);
-        console.error('   uiManager:', typeof window.uiManager);
-        showLoginError('Erreur: Le jeu n\'a pas pu se charger. Recharge la page.');
+        console.error('   window.accountSystem:', typeof window.accountSystem);
+        console.error('   window.uiManager:', typeof window.uiManager);
+        console.error('   All window keys:', Object.keys(window).filter(k => !k.startsWith('webkit')).slice(0, 20));
+        showLoginError('Erreur: Impossible de charger le jeu. Recharge la page.');
     }
 }
 
