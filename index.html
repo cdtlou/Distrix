@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>District - Tetris Game</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=20241204">
     <!-- Google Sign-In -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -216,14 +216,15 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/dev-reload.js"></script>
-    <script src="js/google-signin.js"></script>
-    <script src="js/audio-system.js"></script>
-    <script src="js/account-system.js"></script>
-    <script src="js/xp-system.js"></script>
-    <script src="js/shop-system.js"></script>
-    <script src="js/tetris-game.js"></script>
-    <script src="js/ui-manager.js"></script>
-    <script src="js/main.js"></script>
+    <!-- Cache-busting: Add ?v=DATE to force refresh of new updates without deleting account history -->
+    <script src="js/dev-reload.js?v=20241204"></script>
+    <script src="js/google-signin.js?v=20241204"></script>
+    <script src="js/audio-system.js?v=20241204"></script>
+    <script src="js/account-system.js?v=20241204"></script>
+    <script src="js/xp-system.js?v=20241204"></script>
+    <script src="js/shop-system.js?v=20241204"></script>
+    <script src="js/tetris-game.js?v=20241204"></script>
+    <script src="js/ui-manager.js?v=20241204"></script>
+    <script src="js/main.js?v=20241204"></script>
 </body>
 </html>
