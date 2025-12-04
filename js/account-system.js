@@ -114,17 +114,43 @@ class AccountSystem {
                 this.accounts = data.accounts || {};
                 this.currentUser = data.currentUser || null;
                 // Resauvegarder dans localStorage
-                localStorage.setItem('tetrisAccounts', JSON.stringify(this.accounts));
-                if (this.currentUser) {
-                    localStorage.setItem('tetrisCurrentUser', this.currentUser);
-                }
+                try {
+                    localStorage.setItem('tetrisAccounts', JSON.stringify(this.accounts));
+                    if (this.currentUser) localStorage.setItem('tetrisCurrentUser', this.currentUser);
+                } catch (e) { console.warn('⚠️ Erreur écriture localStorage après IndexedDB restore', e); }
                 console.log('✅ Comptes restaurés depuis IndexedDB');
             } else {
-                console.log('ℹ️ Aucunes données existantes trouvées');
-                this.accounts = {};
-                this.currentUser = null;
+                // Si aucune donnée trouvée, tenter de restaurer depuis l'historique local durable
+                try {
+                    const histRaw = localStorage.getItem('tetrisAccountsHistory');
+                    if (histRaw) {
+                        const hist = JSON.parse(histRaw);
+                        if (Array.isArray(hist) && hist.length > 0) {
+                            const last = hist[hist.length - 1];
+                            this.accounts = last.accounts || {};
+                            this.currentUser = last.currentUser || null;
+                            try {
+                                localStorage.setItem('tetrisAccounts', JSON.stringify(this.accounts));
+                                if (this.currentUser) localStorage.setItem('tetrisCurrentUser', this.currentUser);
+                            } catch (e) { console.warn('⚠️ Erreur écriture localStorage après history restore', e); }
+                            console.log('🔄 Restauré depuis l\'historique local (tetrisAccountsHistory)');
+                        } else {
+                            console.log('ℹ️ Aucunes données existantes trouvées');
+                            this.accounts = {};
+                            this.currentUser = null;
+                        }
+                    } else {
+                        console.log('ℹ️ Aucunes données existantes trouvées');
+                        this.accounts = {};
+                        this.currentUser = null;
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Erreur en lisant l\'historique local:', e);
+                    this.accounts = {};
+                    this.currentUser = null;
+                }
             }
-            
+
             // Après avoir chargé les comptes, migrer les anciens pour être compatibles
             this.migrateOldAccounts();
             // Signaler que les comptes sont prêts (après la migration async)
@@ -463,6 +489,21 @@ class AccountSystem {
     saveAccounts() {
         // QUADRUPLE SAUVEGARDE: localStorage principal + backup localStorage + sessionStorage + IndexedDB
         const dataString = JSON.stringify(this.accounts);
+        // Also keep a durable history of recent snapshots to recover from accidental overwrites/clears
+        try {
+            if (this.accounts && Object.keys(this.accounts).length > 0) {
+                const rawHist = localStorage.getItem('tetrisAccountsHistory');
+                let hist = [];
+                try { hist = rawHist ? JSON.parse(rawHist) : []; } catch (e) { hist = []; }
+                const snapshot = { accounts: this.accounts, currentUser: this.currentUser, ts: new Date().toISOString() };
+                hist.push(snapshot);
+                // Keep last 20 snapshots
+                if (hist.length > 20) hist = hist.slice(hist.length - 20);
+                try { localStorage.setItem('tetrisAccountsHistory', JSON.stringify(hist)); } catch (e) { /* ignore */ }
+            }
+        } catch (e) {
+            console.warn('⚠️ Erreur lors de la mise à jour de l\'historique local:', e);
+        }
         
         // Sauvegarder dans localStorage (principal)
         try {
