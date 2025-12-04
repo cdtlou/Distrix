@@ -4,8 +4,13 @@ class AccountSystem {
         try {
             this.accounts = {};
             this.currentUser = null;
-            // URL du serveur de synchronisation (par défaut en local)
-            this.serverUrl = 'http://localhost:3000';
+            this.currentUserEmail = null; // Stocker l'email Google
+            // URL du serveur de synchronisation
+            this.serverUrl = 'https://distrix-backend.onrender.com'; // À remplacer par ton URL de déploiement
+            // Fallback local pour développement
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                this.serverUrl = 'http://localhost:3000';
+            }
             
             // Charger les comptes depuis localStorage, backup, ou IndexedDB
             this.initializeStorage();
@@ -18,6 +23,8 @@ class AccountSystem {
             this.syncWithServer();
             
             console.log('✅ AccountSystem initialisé avec succès');
+            console.log(`📡 Backend: ${this.serverUrl}`);
+
         } catch (error) {
             console.error('❌ Erreur initialisation AccountSystem:', error);
             console.error('Stack:', error.stack);
@@ -492,6 +499,33 @@ class AccountSystem {
         }
     }
 
+    // Synchroniser un compte spécifique avec le backend (après Google login)
+    async syncAccountToServer() {
+        if (!this.currentUserEmail || !this.currentUser) return;
+        
+        try {
+            const user = this.accounts[this.currentUser];
+            const response = await fetch(`${this.serverUrl}/api/accounts/${encodeURIComponent(this.currentUserEmail)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(user)
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ Compte synchronisé avec serveur:', this.currentUserEmail);
+                return true;
+            } else {
+                console.warn('⚠️ Erreur lors de la sync serveur:', response.status);
+                return false;
+            }
+        } catch (error) {
+            console.warn('⚠️ Impossible de synchroniser (serveur indisponible):', error);
+            return false;
+        }
+    }
+
+
     // Synchronisation entre onglets/fenêtres (si on ouvre plusieurs onglets)
     setupStorageSync() {
         window.addEventListener('storage', (e) => {
@@ -651,6 +685,11 @@ class AccountSystem {
         }
         
         this.saveAccounts(); // Sauvegarde IMMÉDIATE
+        
+        // Synchroniser avec le backend si email Google est disponible
+        if (this.currentUserEmail) {
+            this.syncAccountToServer();
+        }
     }
 
     updateBestScore(score) {
@@ -660,6 +699,11 @@ class AccountSystem {
         if (score > user.bestScore) {
             user.bestScore = score;
             this.saveAccounts(); // Sauvegarde IMMÉDIATE
+            
+            // Synchroniser avec le backend si email Google
+            if (this.currentUserEmail) {
+                this.syncAccountToServer();
+            }
             return true;
         }
         return false;
