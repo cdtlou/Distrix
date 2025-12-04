@@ -1,20 +1,28 @@
 // ============ SYSTÈME DE COMPTES AVEC SYNCHRONISATION SERVEUR ============
 class AccountSystem {
     constructor() {
-        this.accounts = {};
-        this.currentUser = null;
-        // URL du serveur de synchronisation (par défaut en local)
-        this.serverUrl = 'http://localhost:3000';
+        try {
+            this.accounts = {};
+            this.currentUser = null;
+            // URL du serveur de synchronisation (par défaut en local)
+            this.serverUrl = 'http://localhost:3000';
+            
+            // Charger les comptes depuis localStorage, backup, ou IndexedDB
+            this.initializeStorage();
         
-        // Charger les comptes depuis localStorage, backup, ou IndexedDB
-        this.initializeStorage();
-        
-        // Sauvegarde automatique toutes les 5 secondes
-        this.startAutoSave();
-        // Synchronisation entre onglets/fenêtres (même PC/mobile)
-        this.setupStorageSync();
-        // Synchroniser avec le serveur au démarrage
-        this.syncWithServer();
+            // Sauvegarde automatique toutes les 5 secondes
+            this.startAutoSave();
+            // Synchronisation entre onglets/fenêtres (même PC/mobile)
+            this.setupStorageSync();
+            // Synchroniser avec le serveur au démarrage
+            this.syncWithServer();
+            
+            console.log('✅ AccountSystem initialisé avec succès');
+        } catch (error) {
+            console.error('❌ Erreur initialisation AccountSystem:', error);
+            console.error('Stack:', error.stack);
+            // Continuer quand même - on aura au moins les methods
+        }
     }
 
     // Initialiser le stockage avec fallback en cas d'erreur
