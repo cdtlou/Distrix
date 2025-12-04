@@ -481,6 +481,12 @@ class AccountSystem {
     // Envoyer les comptes au serveur
     async syncToServer() {
         try {
+            // Ne pas synchroniser si aucun compte en mémoire (évite d'écraser le serveur)
+            if (!this.accounts || Object.keys(this.accounts).length === 0) {
+                console.log('ℹ️ syncToServer: aucun compte local à synchroniser — skip');
+                return;
+            }
+
             const response = await fetch(`${this.serverUrl}/api/accounts`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

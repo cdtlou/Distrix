@@ -156,6 +156,11 @@ app.post('/api/accounts/:email', (req, res) => {
         const email = decodeURIComponent(req.params.email);
         const updatedData = req.body;
 
+        // Défense: refuser les mises à jour vides (pour éviter suppression accidentelle)
+        if (!updatedData || Object.keys(updatedData).length === 0) {
+            return res.status(400).json({ success: false, message: 'Payload vide - mise à jour refusée' });
+        }
+
         const accounts = loadAccounts();
         let account = accounts[email];
 
