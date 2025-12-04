@@ -742,9 +742,9 @@ class UIManager {
             <div style="white-space: pre-line; font-size: 13px; line-height: 1.6; color: #ddd; font-family: monospace;">
                 ${changelog.split('\n').map(line => {
                     if (line.startsWith('v')) {
-                        return `<span style="color: #667eea; font-weight: bold;">${line}</span>`;
+                        return '<span style="color: #667eea; font-weight: bold;">' + line + '</span>';
                     } else if (line.startsWith('-')) {
-                        return `<span style="color: #90ee90;">├─ ${line.substring(1)}</span>`;
+                        return '<span style="color: #90ee90;">├─ ' + line.substring(1) + '</span>';
                     }
                     return line;
                 }).join('\n')}

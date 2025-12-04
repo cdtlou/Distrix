@@ -357,20 +357,30 @@ class AccountSystem {
     async saveToIndexedDB() {
         try {
             const request = indexedDB.open('TetrisDB', 1);
-            
+
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains('accounts')) {
+                    db.createObjectStore('accounts');
+                }
+                if (!db.objectStoreNames.contains('accountsByEmail')) {
+                    db.createObjectStore('accountsByEmail');
+                }
+            };
+
             request.onsuccess = (event) => {
                 const db = event.target.result;
                 const transaction = db.transaction(['accounts', 'accountsByEmail'], 'readwrite');
                 const mainStore = transaction.objectStore('accounts');
                 const emailStore = transaction.objectStore('accountsByEmail');
-                
+
                 // Save main data
                 mainStore.put({
                     accounts: this.accounts,
                     currentUser: this.currentUser,
                     timestamp: new Date().toISOString()
                 }, 'data');
-                
+
                 // Save each account individually by email for easy retrieval
                 for (const pseudo in this.accounts) {
                     const account = this.accounts[pseudo];
