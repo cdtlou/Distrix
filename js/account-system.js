@@ -271,6 +271,40 @@ class AccountSystem {
         return updateCount;
     }
 
+    // Récupérer un compte par email depuis IndexedDB (pour retrouver après effacement localStorage)
+    async getAccountByEmailFromIndexedDB(email) {
+        return new Promise((resolve) => {
+            try {
+                const request = indexedDB.open('TetrisDB', 1);
+                
+                request.onerror = () => {
+                    console.warn('⚠️ IndexedDB non disponible');
+                    resolve(null);
+                };
+                
+                request.onsuccess = (event) => {
+                    const db = event.target.result;
+                    const transaction = db.transaction(['accountsByEmail'], 'readonly');
+                    const store = transaction.objectStore('accountsByEmail');
+                    const getRequest = store.get(email);
+                    
+                    getRequest.onsuccess = () => {
+                        if (getRequest.result) {
+                            console.log(`✅ Compte retrouvé dans IndexedDB pour ${email}`);
+                            resolve(getRequest.result);
+                        } else {
+                            resolve(null);
+                        }
+                    };
+                    getRequest.onerror = () => resolve(null);
+                };
+            } catch (error) {
+                console.warn('⚠️ Erreur lors de la récupération du compte:', error);
+                resolve(null);
+            }
+        });
+    }
+
     // Charger depuis IndexedDB
     async loadFromIndexedDB() {
         return new Promise((resolve) => {
@@ -299,6 +333,10 @@ class AccountSystem {
                     if (!db.objectStoreNames.contains('accounts')) {
                         db.createObjectStore('accounts');
                     }
+                    // Store individual accounts by email for easy retrieval after localStorage clear
+                    if (!db.objectStoreNames.contains('accountsByEmail')) {
+                        db.createObjectStore('accountsByEmail'); // key: email, value: account
+                    }
                 };
             } catch (error) {
                 console.warn('⚠️ Erreur IndexedDB:', error);
@@ -314,13 +352,23 @@ class AccountSystem {
             
             request.onsuccess = (event) => {
                 const db = event.target.result;
-                const transaction = db.transaction(['accounts'], 'readwrite');
-                const store = transaction.objectStore('accounts');
-                store.put({
+                const transaction = db.transaction(['accounts', 'accountsByEmail'], 'readwrite');
+                const mainStore = transaction.objectStore('accounts');
+                const emailStore = transaction.objectStore('accountsByEmail');
+                
+                // Save main data
+                mainStore.put({
                     accounts: this.accounts,
                     currentUser: this.currentUser,
                     timestamp: new Date().toISOString()
                 }, 'data');
+                
+                // Save each account individually by email for easy retrieval
+                for (const pseudo in this.accounts) {
+                    const account = this.accounts[pseudo];
+                    const email = account.email || pseudo + '@local'; // Use stored email or fallback
+                    emailStore.put(account, email);
+                }
             };
         } catch (error) {
             console.warn('⚠️ Erreur sauvegarde IndexedDB:', error);
@@ -477,6 +525,8 @@ class AccountSystem {
         this.accounts[pseudo] = {
             pseudo: pseudo,
             code: code,
+            email: null, // Will be filled by Google Sign-In (e.g., user@gmail.com)
+            googleSub: code, // Store Google user ID for account recovery
             xp: 0,
             level: 1,
             bestScore: 0,

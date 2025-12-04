@@ -75,8 +75,10 @@ function createOrLoginGoogleAccount(googleData) {
         // Utiliser l'email comme pseudo (avant le @)
         const pseudo = googleData.email.split('@')[0];
         const code = googleData.sub; // Google User ID unique comme code
+        const email = googleData.email; // Email complet pour retrouver le compte
         
         console.log(`   Pseudo: ${pseudo}`);
+        console.log(`   Email: ${email}`);
         console.log(`   Code: ${code}`);
         
         // Vérifier accountSystem
@@ -91,14 +93,54 @@ function createOrLoginGoogleAccount(googleData) {
         }
         console.log('✅ uiManager prêt');
         
-        // Créer le compte
+        // Si localStorage a été effacé mais IndexedDB existe, restaurer le compte
+        let accountRestoredFromIndexedDB = false;
+        if (!window.accountSystem.accounts[pseudo]) {
+            console.log(`📦 Recherche du compte dans IndexedDB pour: ${email}`);
+            window.accountSystem.getAccountByEmailFromIndexedDB(email).then((restoredAccount) => {
+                if (restoredAccount) {
+                    console.log(`✅✅ Compte restauré depuis IndexedDB: ${pseudo}`);
+                    window.accountSystem.accounts[pseudo] = restoredAccount;
+                    window.accountSystem.currentUser = pseudo;
+                    window.accountSystem.saveCurrentSession();
+                    accountRestoredFromIndexedDB = true;
+                    proceedWithLogin(pseudo, code, email);
+                } else {
+                    // Pas trouvé dans IndexedDB, créer nouveau compte
+                    proceedWithLogin(pseudo, code, email);
+                }
+            });
+            return;
+        }
+        
+        // Compte trouvé en mémoire, procéder
+        proceedWithLogin(pseudo, code, email);
+        
+    } catch (error) {
+        console.error('❌ ERREUR CRÉATION/CONNEXION:', error.message);
+        console.error('Stack:', error.stack);
+        showLoginError(`Erreur: ${error.message}`);
+    }
+}
+
+// Effectuer la création ou connexion du compte
+function proceedWithLogin(pseudo, code, email) {
+    try {
+        // Créer le compte si n'existe pas
         console.log('📝 Création de compte...');
         const createResult = window.accountSystem.createAccount(pseudo, code);
         
         if (createResult.success) {
             console.log(`✅ Nouveau compte créé: ${pseudo}`);
+            // Mettre à jour l'email Google dans le compte
+            window.accountSystem.accounts[pseudo].email = email;
+            window.accountSystem.accounts[pseudo].googleSub = code;
         } else {
             console.log(`ℹ️ Compte existe déjà: ${pseudo}`);
+            // Mettre à jour l'email si pas encore défini
+            if (!window.accountSystem.accounts[pseudo].email) {
+                window.accountSystem.accounts[pseudo].email = email;
+            }
         }
         
         // Connecter
