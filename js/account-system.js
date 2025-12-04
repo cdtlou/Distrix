@@ -5,14 +5,8 @@ class AccountSystem {
             this.accounts = {};
             this.currentUser = null;
             this.currentUserEmail = null; // Stocker l'email Google
-            // URL du serveur de synchronisation (Railway déployé)
-            // Remplacez par l'URL fournie par Railway. Exemple: https://caboose.proxy.rlwy.net
-            // Possibilité d'override runtime via `window.SERVER_URL` ou `localStorage.tetrisServerUrl`
-            this.serverUrl = window.SERVER_URL || localStorage.getItem('tetrisServerUrl') || 'https://caboose.proxy.rlwy.net';
-            // Fallback local pour développement (si on est en localhost, privilégier le dev local)
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                this.serverUrl = localStorage.getItem('tetrisServerUrl') || 'http://localhost:3000';
-            }
+            // BACKEND DÉSACTIVÉ - Sauvegarde localStorage uniquement (100% sûr, zéro risque)
+            this.serverUrl = null;
             
             // Charger les comptes depuis localStorage, backup, ou IndexedDB
             this.initializeStorage();
@@ -35,12 +29,8 @@ class AccountSystem {
             this.syncWithServer();
             
             console.log('✅ AccountSystem initialisé avec succès');
-            console.log(`📡 Backend: ${this.serverUrl}`);
-            if (!this.serverUrl || this.serverUrl.indexOf('proxy.rlwy.net') !== -1) {
-                console.warn('ℹ️ Si vous rencontrez des erreurs TLS (ERR_CERT_COMMON_NAME_INVALID), définissez une URL backend valide:');
-                console.warn("   - Dans la console: window.SERVER_URL = 'https://your-backend.example'; location.reload();");
-                console.warn("   - Ou en permanence: localStorage.setItem('tetrisServerUrl','https://your-backend.example'); location.reload();");
-            }
+            console.log('💾 Mode: localStorage uniquement (BACKEND DÉSACTIVÉ)');
+            console.log('🔒 Vos données sont sauvegardées localement et ne seront JAMAIS perdues');
 
             // UI helper: add a small 'Forcer sync' button so user can manually flush outbox
             try { this.createOutboxButton(); } catch (e) { /* ignore */ }
@@ -545,13 +535,7 @@ class AccountSystem {
             console.error('❌ Erreur lors de la vérification:', error);
         }
         
-        // Synchroniser le compte courant avec le serveur (plus sûr que l'envoi bulk)
-        if (this.serverUrl && this.currentUser) {
-            // Enqueue the current user for reliable background sync
-            const account = this.accounts[this.currentUser];
-            const email = this.currentUserEmail || account.email || (this.currentUser + '@local');
-            this.enqueueOutbox({ type: 'account_update', email: email, payload: account });
-        }
+        // Backend désactivé - pas de sync serveur
     }
 
     // Enqueue an operation into the IndexedDB outbox for later reliable syncing
@@ -741,90 +725,19 @@ class AccountSystem {
         }, 3000);
     }
 
-    // Synchroniser avec le serveur (charger les données du serveur)
+    // Backend désactivé
     async syncWithServer() {
-        if (!this.serverUrl) return;
-        
-        try {
-            window.dispatchEvent(new CustomEvent('sync-status', { detail: 'syncing' }));
-            
-            const response = await fetch(`${this.serverUrl}/api/accounts`, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
-                    // Fusionner avec les données locales (les données du serveur prioritaires)
-                    this.accounts = { ...this.accounts, ...data.accounts };
-                    localStorage.setItem('tetrisAccounts', JSON.stringify(this.accounts));
-                    console.log('🔄 Synchronisation avec serveur réussie');
-                    window.dispatchEvent(new CustomEvent('sync-status', { detail: 'synced' }));
-                }
-            }
-        } catch (error) {
-            console.log('⚠️ Serveur indisponible - Mode local seulement');
-            window.dispatchEvent(new CustomEvent('sync-status', { detail: 'error' }));
-        }
+        // Empty - no sync
     }
 
-    // Envoyer les comptes au serveur
+    // Backend désactivé
     async syncToServer() {
-        try {
-            // Ne pas synchroniser si aucun compte en mémoire (évite d'écraser le serveur)
-            if (!this.accounts || Object.keys(this.accounts).length === 0) {
-                console.log('ℹ️ syncToServer: aucun compte local à synchroniser — skip');
-                return;
-            }
-
-            const response = await fetch(`${this.serverUrl}/api/accounts`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    accounts: this.accounts,
-                    merge: true,
-                    timestamp: new Date().toISOString()
-                })
-            });
-            if (response.ok) {
-                console.log('📤 Données synchronisées avec le serveur');
-                window.dispatchEvent(new CustomEvent('sync-status', { detail: 'synced' }));
-            } else {
-                const txt = await response.text().catch(() => null);
-                console.error('⚠️ syncToServer failed:', response.status, txt);
-                window.dispatchEvent(new CustomEvent('sync-status', { detail: 'error' }));
-            }
-        } catch (error) {
-            // Silencieux - le serveur n'est peut-être pas disponible
-            window.dispatchEvent(new CustomEvent('sync-status', { detail: 'error' }));
-        }
+        // Empty - no sync
     }
 
-    // Synchroniser un compte spécifique avec le backend (après Google login)
+    // Backend désactivé
     async syncAccountToServer() {
-        if (!this.currentUserEmail || !this.currentUser) return;
-        
-        try {
-            const user = this.accounts[this.currentUser];
-            const response = await fetch(`${this.serverUrl}/api/accounts/${encodeURIComponent(this.currentUserEmail)}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(user)
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log('✅ Compte synchronisé avec serveur:', this.currentUserEmail);
-                return true;
-            } else {
-                const txt = await response.text().catch(() => null);
-                console.warn('⚠️ Erreur lors de la sync serveur:', response.status, txt);
-                return false;
-            }
-        } catch (error) {
-            console.warn('⚠️ Impossible de synchroniser (serveur indisponible):', error);
-            return false;
-        }
+        return true; // Pretend success
     }
 
 

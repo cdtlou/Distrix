@@ -88,9 +88,9 @@ function createOrLoginGoogleAccount(googleData, rawToken) {
         if (!window.uiManager) throw new Error('uiManager n\'est pas chargé');
         console.log('✅ uiManager prêt');
         
-        // Étape 1: Vérifier le token avec le backend
-        console.log('🔐 Vérification du token avec le serveur...');
-        verifyGoogleTokenWithBackend(token, email, pseudo, code);
+        // Backend désactivé - création/connexion locale directement
+        console.log('✅ Mode local activé (pas de vérification serveur)');
+        proceedWithLoginLocal(pseudo, code, email);
         
     } catch (error) {
         console.error('❌ ERREUR CRÉATION/CONNEXION:', error.message);
