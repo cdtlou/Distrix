@@ -8,7 +8,8 @@ class AccountSystem {
             // URL du serveur de synchronisation (Railway déployé)
             // Remplacez par l'URL fournie par Railway. Exemple: https://caboose.proxy.rlwy.net
             // Possibilité d'override runtime via `window.SERVER_URL` ou `localStorage.tetrisServerUrl`
-            this.serverUrl = window.SERVER_URL || localStorage.getItem('tetrisServerUrl') || 'https://caboose.proxy.rlwy.net';
+            // Default set to the Railway deployment domain you provided
+            this.serverUrl = window.SERVER_URL || localStorage.getItem('tetrisServerUrl') || 'https://distrix-production.up.railway.app';
             // Fallback local pour développement (si on est en localhost, privilégier le dev local)
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 this.serverUrl = localStorage.getItem('tetrisServerUrl') || 'http://localhost:3000';
@@ -668,6 +669,55 @@ class AccountSystem {
             console.log('🔌 Browser online - draining outbox');
             this.processOutbox();
         });
+    }
+
+    // Enable safe server sync: performs a health check, drains the outbox and
+    // optionally fetches server data only if there are no local accounts.
+    async enableServerSync({ fetchServerIfNoLocal = true } = {}) {
+        if (!this.serverUrl) {
+            console.warn('⚠️ enableServerSync: no serverUrl configured');
+            return false;
+        }
+
+        try {
+            const health = await fetch(`${this.serverUrl}/api/health`, { method: 'GET' });
+            if (!health.ok) {
+                console.warn('⚠️ Server health check failed:', health.status);
+                return false;
+            }
+            console.log('✅ Server reachable, draining outbox now');
+
+            // Drain outbox first (sends queued per-account updates)
+            await this.processOutbox();
+
+            // If no local accounts and allowed, pull server data (safe path)
+            if (fetchServerIfNoLocal) {
+                const hasLocal = this.accounts && Object.keys(this.accounts).length > 0;
+                if (!hasLocal) {
+                    try {
+                        const resp = await fetch(`${this.serverUrl}/api/accounts`, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+                        if (resp.ok) {
+                            const data = await resp.json();
+                            if (data && data.success && data.accounts) {
+                                this.accounts = Object.assign({}, data.accounts);
+                                try { localStorage.setItem('tetrisAccounts', JSON.stringify(this.accounts)); } catch (e) {}
+                                console.log('🔄 Server accounts pulled into local storage (no local accounts existed)');
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('⚠️ Failed to fetch server accounts:', e);
+                    }
+                } else {
+                    console.log('ℹ️ Local accounts exist — skipping server pull to avoid overwriting');
+                }
+            }
+
+            console.log('✅ enableServerSync completed');
+            return true;
+        } catch (error) {
+            console.warn('⚠️ enableServerSync failed:', error);
+            return false;
+        }
     }
 
     // Create a floating button UI that allows the user to force a sync and inspect the outbox
