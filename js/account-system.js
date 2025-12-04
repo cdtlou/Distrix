@@ -669,6 +669,42 @@ class AccountSystem {
             console.log('🔌 Browser online - draining outbox');
             this.processOutbox();
         });
+
+        // Install mobile reliability handlers (page visibility & pagehide)
+        try {
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') {
+                    console.log('📴 visibilitychange:hidden - attempting final outbox drain and sendBeacon');
+                    try { this.processOutbox(); } catch (e) { /* ignore */ }
+                    try {
+                        if (this.currentUser && this.serverUrl && navigator && navigator.sendBeacon) {
+                            const account = this.accounts[this.currentUser] || {};
+                            const email = this.currentUserEmail || account.email || (this.currentUser + '@local');
+                            const url = `${this.serverUrl}/api/accounts/${encodeURIComponent(email)}`;
+                            const blob = new Blob([JSON.stringify(account)], { type: 'application/json' });
+                            navigator.sendBeacon(url, blob);
+                        }
+                    } catch (e) { /* ignore */ }
+                }
+            });
+
+            // pagehide is more reliable on mobile than beforeunload
+            window.addEventListener('pagehide', () => {
+                console.log('pagehide - attempting final outbox drain and sendBeacon');
+                try { this.processOutbox(); } catch (e) { /* ignore */ }
+                try {
+                    if (this.currentUser && this.serverUrl && navigator && navigator.sendBeacon) {
+                        const account = this.accounts[this.currentUser] || {};
+                        const email = this.currentUserEmail || account.email || (this.currentUser + '@local');
+                        const url = `${this.serverUrl}/api/accounts/${encodeURIComponent(email)}`;
+                        const blob = new Blob([JSON.stringify(account)], { type: 'application/json' });
+                        navigator.sendBeacon(url, blob);
+                    }
+                } catch (e) { /* ignore */ }
+            });
+        } catch (e) {
+            console.warn('⚠️ Failed to install mobile reliability handlers', e);
+        }
     }
 
     // Enable safe server sync: performs a health check, drains the outbox and
