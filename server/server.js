@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { OAuth2Client } from 'google-auth-library';
 import fs from 'fs';
+import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -54,22 +55,44 @@ function saveAccounts(accounts) {
             const backupPath = path.join(backupsDir, `accounts-${timestamp}.json`);
             if (fs.existsSync(dbPath)) {
                 fs.copyFileSync(dbPath, backupPath);
+                // compute checksum for backup
+                try {
+                    const data = fs.readFileSync(backupPath);
+                    const sum = crypto.createHash('sha256').update(data).digest('hex');
+                    fs.writeFileSync(backupPath + '.sha256', sum, 'utf-8');
+                } catch (e) {
+                    console.warn('⚠️ Impossible de créer checksum pour backup:', e);
+                }
                 // Supprimer les anciens backups si trop nombreux (garder 10)
                 const files = fs.readdirSync(backupsDir)
-                    .filter(f => f.startsWith('accounts-'))
+                    .filter(f => f.startsWith('accounts-') && f.endsWith('.json'))
                     .map(f => ({ f, t: fs.statSync(path.join(backupsDir, f)).mtime.getTime() }))
                     .sort((a,b) => b.t - a.t);
-                const keep = 10;
+                const keep = 50; // conserver plus de backups
                 files.slice(keep).forEach(old => {
-                    try { fs.unlinkSync(path.join(backupsDir, old.f)); } catch(e){}
+                    try { 
+                        fs.unlinkSync(path.join(backupsDir, old.f)); 
+                        // also remove checksum file if present
+                        try { fs.unlinkSync(path.join(backupsDir, old.f + '.sha256')); } catch(e){}
+                    } catch(e){}
                 });
             }
         } catch (err) {
             console.warn('⚠️ Erreur lors de la création du backup avant save:', err);
         }
 
-        fs.writeFileSync(dbPath, JSON.stringify(accounts, null, 2), 'utf-8');
-        console.log('✅ Comptes sauvegardés (et backup créé)');
+        // Ecriture atomique: écrire dans un fichier temporaire puis renommer
+        const tmpPath = dbPath + '.tmp';
+        try {
+            fs.writeFileSync(tmpPath, JSON.stringify(accounts, null, 2), 'utf-8');
+            fs.renameSync(tmpPath, dbPath);
+            console.log('✅ Comptes sauvegardés (écriture atomique)');
+        } catch (e) {
+            console.error('❌ Erreur écriture atomique DB:', e);
+            // tenter nettoyage du tmp
+            try { if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath); } catch(e){}
+            throw e;
+        }
     } catch (error) {
         console.error('❌ Erreur sauvegarde database:', error);
     }
