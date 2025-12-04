@@ -22,6 +22,15 @@ app.use(express.json());
 
 // Chemin pour la base de données JSON
 const dbPath = path.join(__dirname, 'accounts.json');
+const backupsDir = path.join(__dirname, 'backups');
+
+// Admin token (pour opérations sensibles comme DELETE / restore)
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN || null;
+
+// Ensure backups directory exists
+if (!fs.existsSync(backupsDir)) {
+    try { fs.mkdirSync(backupsDir); } catch (e) { console.warn('⚠️ Impossible de créer backups dir:', e); }
+}
 
 // Charger les comptes depuis le fichier JSON
 function loadAccounts() {
@@ -39,8 +48,28 @@ function loadAccounts() {
 // Sauvegarder les comptes dans le fichier JSON
 function saveAccounts(accounts) {
     try {
+        // Avant d'écraser, créer une sauvegarde horodatée
+        try {
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const backupPath = path.join(backupsDir, `accounts-${timestamp}.json`);
+            if (fs.existsSync(dbPath)) {
+                fs.copyFileSync(dbPath, backupPath);
+                // Supprimer les anciens backups si trop nombreux (garder 10)
+                const files = fs.readdirSync(backupsDir)
+                    .filter(f => f.startsWith('accounts-'))
+                    .map(f => ({ f, t: fs.statSync(path.join(backupsDir, f)).mtime.getTime() }))
+                    .sort((a,b) => b.t - a.t);
+                const keep = 10;
+                files.slice(keep).forEach(old => {
+                    try { fs.unlinkSync(path.join(backupsDir, old.f)); } catch(e){}
+                });
+            }
+        } catch (err) {
+            console.warn('⚠️ Erreur lors de la création du backup avant save:', err);
+        }
+
         fs.writeFileSync(dbPath, JSON.stringify(accounts, null, 2), 'utf-8');
-        console.log('✅ Comptes sauvegardés');
+        console.log('✅ Comptes sauvegardés (et backup créé)');
     } catch (error) {
         console.error('❌ Erreur sauvegarde database:', error);
     }
@@ -168,12 +197,17 @@ app.post('/api/accounts/:email', (req, res) => {
             return res.status(404).json({ success: false, message: 'Compte non trouvé' });
         }
 
+        // Backup avant modification
+        try { saveAccounts(accounts); } catch(e) { console.warn('⚠️ Backup avant update failed', e); }
+
         // Mettre à jour les champs fournis
         account = { ...account, ...updatedData };
         account.lastUpdated = new Date().toISOString();
 
         accounts[email] = account;
         saveAccounts(accounts);
+
+        console.log(`📥 Compte ${email} mis à jour via API`);
 
         res.json({
             success: true,
@@ -306,6 +340,97 @@ app.get('/api/admin/accounts', (req, res) => {
     } catch (error) {
         console.error('❌ Erreur lecture comptes:', error);
         res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+// Supprimer un compte (protégé par ADMIN_TOKEN)
+app.delete('/api/accounts/:email', (req, res) => {
+    try {
+        const email = decodeURIComponent(req.params.email);
+        const token = req.headers['x-admin-token'] || req.query.token || null;
+
+        if (!ADMIN_TOKEN || token !== ADMIN_TOKEN) {
+            console.warn(`⚠️ DELETE attempted for ${email} without valid admin token`);
+            return res.status(403).json({ success: false, message: 'Forbidden: admin token required' });
+        }
+
+        const accounts = loadAccounts();
+
+        if (!accounts[email]) {
+            return res.status(404).json({ success: false, message: 'Compte non trouvé' });
+        }
+
+        // Backup current DB before deletion
+        try { saveAccounts(accounts); } catch (e) { console.warn('⚠️ Backup before delete failed', e); }
+
+        delete accounts[email];
+        saveAccounts(accounts);
+
+        console.log(`✅ Compte ${email} supprimé (admin)`);
+        return res.json({ success: true, message: 'Compte supprimé' });
+    } catch (error) {
+        console.error('❌ Erreur suppression compte:', error);
+        return res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+// --- Admin: lister les backups disponibles (protégé)
+app.get('/api/admin/backups', (req, res) => {
+    try {
+        const token = req.headers['x-admin-token'] || req.query.token || null;
+        if (!ADMIN_TOKEN || token !== ADMIN_TOKEN) {
+            return res.status(403).json({ success: false, message: 'Forbidden: admin token required' });
+        }
+
+        if (!fs.existsSync(backupsDir)) {
+            return res.json({ success: true, backups: [] });
+        }
+
+        const files = fs.readdirSync(backupsDir)
+            .filter(f => f.startsWith('accounts-'))
+            .map(f => ({ file: f, mtime: fs.statSync(path.join(backupsDir, f)).mtime.getTime() }))
+            .sort((a, b) => b.mtime - a.mtime)
+            .map(x => x.file);
+
+        return res.json({ success: true, backups: files });
+    } catch (error) {
+        console.error('❌ Erreur listing backups:', error);
+        return res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+// --- Admin: restaurer la sauvegarde la plus récente (protégé)
+app.post('/api/admin/restore', (req, res) => {
+    try {
+        const token = req.headers['x-admin-token'] || req.query.token || null;
+        if (!ADMIN_TOKEN || token !== ADMIN_TOKEN) {
+            return res.status(403).json({ success: false, message: 'Forbidden: admin token required' });
+        }
+
+        if (!fs.existsSync(backupsDir)) {
+            return res.status(404).json({ success: false, message: 'Aucune sauvegarde trouvée' });
+        }
+
+        const files = fs.readdirSync(backupsDir)
+            .filter(f => f.startsWith('accounts-'))
+            .map(f => ({ file: f, mtime: fs.statSync(path.join(backupsDir, f)).mtime.getTime() }))
+            .sort((a, b) => b.mtime - a.mtime);
+
+        if (files.length === 0) {
+            return res.status(404).json({ success: false, message: 'Aucune sauvegarde trouvée' });
+        }
+
+        const latest = files[0].file;
+        const backupPath = path.join(backupsDir, latest);
+
+        // Copier le fichier de backup vers la DB principale
+        fs.copyFileSync(backupPath, dbPath);
+        console.log(`♻️ Restauré depuis backup: ${latest}`);
+
+        return res.json({ success: true, message: 'Restauration effectuée', restored: latest });
+    } catch (error) {
+        console.error('❌ Erreur restauration backup:', error);
+        return res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 });
 
