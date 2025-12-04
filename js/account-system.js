@@ -77,13 +77,18 @@ class AccountSystem {
 
     // Initialiser le stockage avec fallback en cas d'erreur
     initializeStorage() {
-        // D'abord essayer le localStorage principal
+        // 🔥 RAILWAY-ONLY MODE: Load from Railway backend first
+        // After login, accounts ONLY exist on Railway server
+        // No persistent localStorage = prevents data corruption on mobile
+        console.log('🔄 Railway-ONLY mode: Comptes stockés sur Railway backend uniquement');
+        
+        // D'abord essayer le localStorage principal (legacy fallback seulement)
         const mainData = localStorage.getItem('tetrisAccounts');
         if (mainData) {
             try {
                 this.accounts = JSON.parse(mainData);
                 this.currentUser = localStorage.getItem('tetrisCurrentUser');
-                console.log('✅ Comptes chargés depuis localStorage');
+                console.log('ℹ️ Legacy comptes chargés depuis localStorage (migrer sur Railway)');
                 // Signaler que les comptes sont prêts (synchrones)
                 try { window.dispatchEvent(new CustomEvent('accounts-ready')); } catch (e) {}
                 return;
@@ -528,6 +533,37 @@ class AccountSystem {
 
         } catch (error) {
             console.error('❌ Error in saveAccounts:', error);
+        }
+    }
+
+    // Load account from Railway backend by email
+    async loadAccountFromRailway(email) {
+        try {
+            if (!email || !this.serverUrl) {
+                console.warn('⚠️ loadAccountFromRailway: email or serverUrl missing');
+                return null;
+            }
+
+            const railwayUrl = `${this.serverUrl}/api/accounts/${encodeURIComponent(email)}`;
+            const res = await fetch(railwayUrl, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (res.ok) {
+                const account = await res.json();
+                console.log(`✅ Compte chargé depuis Railway: ${email}`);
+                return account;
+            } else if (res.status === 404) {
+                console.log(`ℹ️ Compte inexistant sur Railway: ${email}`);
+                return null;
+            } else {
+                console.warn(`⚠️ Railway load failed: ${res.status}`);
+                return null;
+            }
+        } catch (err) {
+            console.warn('⚠️ Railway load error:', err);
+            return null;
         }
     }
 
