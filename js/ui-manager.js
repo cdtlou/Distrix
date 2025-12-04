@@ -724,5 +724,20 @@ class UIManager {
     }
 }
 
-// Instance globale
-const uiManager = new UIManager();
+// Instance globale - avec gestion des erreurs
+let uiManager;
+try {
+    console.log('🚀 Création de UIManager...');
+    uiManager = new UIManager();
+    window.uiManager = uiManager;
+    console.log('✅ UIManager créé avec succès');
+} catch (error) {
+    console.error('❌ Erreur création UIManager:', error);
+    // Créer un objet dummy pour éviter les crashes
+    window.uiManager = {
+        showPage: () => console.warn('UIManager non disponible'),
+        updateLobbyDisplay: () => console.warn('UIManager non disponible'),
+        createAccount: () => console.warn('UIManager non disponible'),
+        login: () => console.warn('UIManager non disponible')
+    };
+}

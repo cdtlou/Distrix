@@ -1,7 +1,7 @@
 // ============ GOOGLE SIGN-IN INTEGRATION ============
 
 // Attendre que les systèmes clés soient chargés
-function waitForSystems(callback, maxRetries = 100) {
+function waitForSystems(callback, maxRetries = 200) {
     const hasAccountSystem = window.accountSystem && typeof window.accountSystem.login === 'function';
     const hasUIManager = window.uiManager && typeof window.uiManager.showPage === 'function';
     
@@ -9,13 +9,15 @@ function waitForSystems(callback, maxRetries = 100) {
         console.log('✅ Tous les systèmes sont chargés et prêts!');
         callback();
     } else if (maxRetries > 0) {
-        if (maxRetries % 20 === 0) {
-            console.log(`⏳ Attente systèmes... (${100 - maxRetries}ms, retry ${100 - maxRetries})`);
+        if (maxRetries % 50 === 0) {
+            console.log(`⏳ Attente... AS:${hasAccountSystem} UI:${hasUIManager} (${200-maxRetries*25}ms)`);
         }
-        setTimeout(() => waitForSystems(callback, maxRetries - 1), 50);
+        setTimeout(() => waitForSystems(callback, maxRetries - 1), 25);
     } else {
         console.error('❌ Timeout: Les systèmes ne se sont pas chargés après 5s');
-        showLoginError('Erreur: Le jeu n\'a pas pu se charger complètement');
+        console.error('   accountSystem:', typeof window.accountSystem);
+        console.error('   uiManager:', typeof window.uiManager);
+        showLoginError('Erreur: Le jeu n\'a pas pu se charger. Recharge la page.');
     }
 }
 
@@ -67,7 +69,7 @@ function handleGoogleSignIn(response) {
 // Créer ou connecter un compte automatiquement avec les données Google
 function createOrLoginGoogleAccount(googleData) {
     try {
-        console.log('🎮 Début du processus de création/connexion...');
+        console.log('🎮 === DÉBUT CRÉATION/CONNEXION ===');
         
         // Utiliser l'email comme pseudo (avant le @)
         const pseudo = googleData.email.split('@')[0];
@@ -76,18 +78,20 @@ function createOrLoginGoogleAccount(googleData) {
         console.log(`   Pseudo: ${pseudo}`);
         console.log(`   Code: ${code}`);
         
-        // Double-vérifier que les systèmes sont chargés
+        // Vérifier accountSystem
         if (!window.accountSystem) {
             throw new Error('accountSystem n\'est pas chargé');
         }
+        console.log('✅ accountSystem prêt');
+        
+        // Vérifier uiManager
         if (!window.uiManager) {
             throw new Error('uiManager n\'est pas chargé');
         }
+        console.log('✅ uiManager prêt');
         
-        console.log('✅ Systèmes vérifiés');
-        
-        // Créer le compte via le système de comptes existant
-        console.log('📝 Tentative de création de compte...');
+        // Créer le compte
+        console.log('📝 Création de compte...');
         const createResult = window.accountSystem.createAccount(pseudo, code);
         
         if (createResult.success) {
@@ -96,26 +100,26 @@ function createOrLoginGoogleAccount(googleData) {
             console.log(`ℹ️ Compte existe déjà: ${pseudo}`);
         }
         
-        // Toujours essayer de se connecter
-        console.log('🔓 Tentative de connexion...');
+        // Connecter
+        console.log('🔓 Connexion au compte...');
         const loginResult = window.accountSystem.login(pseudo, code);
         
         if (loginResult.success) {
             console.log(`✅✅ Connexion réussie: ${pseudo}`);
             
-            // Petit délai pour s'assurer que le compte est bien sauvegardé
+            // Attendre un peu et rediriger
+            console.log('📍 Préparation redirection...');
             setTimeout(() => {
-                console.log('📍 Redirection au lobby...');
+                console.log('📍 Redirection au lobby en cours...');
                 window.uiManager.showPage('lobbyPage');
                 window.uiManager.updateLobbyDisplay();
-                console.log('✅ Redirection complète - Bienvenue au lobby!');
-            }, 200);
+                console.log('✅✅✅ REDIRECTION COMPLÈTE - Bienvenue au jeu!');
+            }, 300);
         } else {
-            console.error(`❌ Connexion échouée: ${loginResult.message}`);
-            showLoginError(`Erreur de connexion: ${loginResult.message}`);
+            throw new Error(`Connexion échouée: ${loginResult.message}`);
         }
     } catch (error) {
-        console.error('❌ Erreur dans createOrLoginGoogleAccount:', error.message);
+        console.error('❌ ERREUR CRÉATION/CONNEXION:', error.message);
         console.error('Stack:', error.stack);
         showLoginError(`Erreur: ${error.message}`);
     }
