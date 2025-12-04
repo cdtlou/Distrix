@@ -167,7 +167,32 @@ class UIManager {
         accountSystem.logout();
         document.getElementById('pseudoInput').value = '';
         document.getElementById('codeInput').value = '';
+        // Retourner à la page de connexion
         this.showPage('loginPage');
+
+        // Effacer les messages d'erreur éventuels
+        const errorDiv = document.getElementById('loginError');
+        if (errorDiv) {
+            errorDiv.textContent = '';
+            errorDiv.style.display = 'none';
+        }
+
+        // Si Google Identity est présent, demander à afficher le sélecteur
+        try {
+            if (window.google && window.google.accounts && window.google.accounts.id) {
+                // Empêcher la sélection automatique du compte précédemment utilisé
+                if (typeof window.google.accounts.id.disableAutoSelect === 'function') {
+                    window.google.accounts.id.disableAutoSelect();
+                }
+
+                // Provoquer l'affichage du sélecteur/one-tap pour choisir un compte
+                if (typeof window.google.accounts.id.prompt === 'function') {
+                    window.google.accounts.id.prompt();
+                }
+            }
+        } catch (err) {
+            console.warn('⚠️ Impossible d'appeler Google Identity API lors de la déconnexion:', err);
+        }
     }
 
     showError(message, type = 'error') {
